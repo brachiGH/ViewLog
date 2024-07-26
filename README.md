@@ -26,5 +26,5 @@ build
 ```console
 mkdir build
 cd build
-qmake6 ../MediaPlayer.pro
+qmake ../MediaPlayer.pro
 ```
