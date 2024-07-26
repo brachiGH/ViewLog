@@ -4,7 +4,6 @@ ViewLog is a video tracking app built with Qt6. ViewLog allows you to keep track
 
 # Build
 
-
 ```console
 rm -rf build
 mkdir build
