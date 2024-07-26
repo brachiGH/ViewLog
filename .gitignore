@@ -1,3 +1,5 @@
 /build
 MediaPlayer.pro.user
 ui_mainwindow.h
+.vs
+.vscode

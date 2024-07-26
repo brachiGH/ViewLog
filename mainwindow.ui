@@ -18,15 +18,24 @@
   </property>
   <widget class="QWidget" name="gridLayoutWidget">
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="2" column="18">
-     <widget class="QPushButton" name="pushButton_Volume">
-      <property name="maximumSize">
+    <item row="0" column="0" colspan="19">
+     <widget class="QGroupBox" name="groupBox_Video">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="minimumSize">
        <size>
-        <width>50</width>
-        <height>50</height>
+        <width>1080</width>
+        <height>720</height>
        </size>
       </property>
-      <property name="text">
+      <property name="styleSheet">
+       <string notr="true">QGroupBox
+{
+        border:1px solid black;
+}</string>
+      </property>
+      <property name="title">
        <string/>
       </property>
      </widget>
@@ -40,48 +49,6 @@
        </size>
       </property>
       <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1" colspan="19">
-     <widget class="QSlider" name="horizontalSlider_Duration">
-      <property name="minimumSize">
-       <size>
-        <width>910</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="19">
-     <widget class="QSlider" name="horizontalSlider_Volume">
-      <property name="maximumSize">
-       <size>
-        <width>150</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" colspan="21">
-     <widget class="QGroupBox" name="groupBox_Video">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QGroupBox
-{
-        border:1px solid black;
-}</string>
-      </property>
-      <property name="title">
        <string/>
       </property>
      </widget>
@@ -105,33 +72,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="3">
-     <widget class="QPushButton" name="pushButton_Play_Pause">
-      <property name="maximumSize">
-       <size>
-        <width>50</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2">
-     <widget class="QPushButton" name="pushButton_Seek_Forward">
-      <property name="maximumSize">
-       <size>
-        <width>50</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="20">
+    <item row="1" column="18">
      <widget class="QLabel" name="label_Total_Time">
       <property name="enabled">
        <bool>true</bool>
@@ -153,20 +94,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="pushButton_Seek_Backward">
-      <property name="maximumSize">
-       <size>
-        <width>50</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="21" rowspan="3">
+    <item row="0" column="19" rowspan="3">
      <widget class="QTreeWidget" name="treeWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -241,6 +169,84 @@
       </column>
      </widget>
     </item>
+    <item row="2" column="16">
+     <widget class="QPushButton" name="pushButton_Volume">
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="17">
+     <widget class="QSlider" name="horizontalSlider_Volume">
+      <property name="maximumSize">
+       <size>
+        <width>150</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QPushButton" name="pushButton_Seek_Backward">
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" colspan="17">
+     <widget class="QSlider" name="horizontalSlider_Duration">
+      <property name="minimumSize">
+       <size>
+        <width>910</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3">
+     <widget class="QPushButton" name="pushButton_Play_Pause">
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QPushButton" name="pushButton_Seek_Forward">
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -254,7 +260,7 @@
    </property>
    <widget class="QMenu" name="menuSelect_Video_File">
     <property name="title">
-     <string>Select Video File</string>
+     <string>Select Videos Folder</string>
     </property>
     <addaction name="actionOpen"/>
    </widget>

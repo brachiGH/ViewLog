@@ -8,6 +8,14 @@
 #include <QtWidgets>
 #include <QtGui>
 #include <QAudioOutput>
+#include "FoldetTree.h"
+#include <iostream>
+#include <QMenu>
+#include <QAction>
+#include <QDebug>
+#include <QUrl>
+#include <QDesktopServices>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -43,6 +51,18 @@ private slots:
 
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
 
+    void PlayVideo(QString FileName);
+
+    void on_treeWidget_itemCollapsed(QTreeWidgetItem *item);
+
+    void on_treeWidget_itemExpanded(QTreeWidgetItem *item);
+
+    void on_treeWidget_customContextMenuRequested(const QPoint &pos);
+
+    void openFileWithDefaultApp(const QString &filePath);
+
+    void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
 private:
     Ui::MainWindow *ui;
     QMediaPlayer *Player;
@@ -51,6 +71,8 @@ private:
     qint64 mDuration;
     bool IS_Pause = true;
     bool IS_Muted = false;
+
+    FolderTree* foldertree = nullptr;
 
     void updateDuration(qint64 Duration);
 };
