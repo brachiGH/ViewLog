@@ -230,10 +230,10 @@ void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int colu
     if (node) {
         std::cout << node->name << std::endl;
         if (node->isFile) {
-            if (id > 0) {
+            if (id > 0 && ui->playInViewLOg_check_box->isChecked()) {
                 PlayVideo(node->path);
             } else {
-
+                QDesktopServices::openUrl(QUrl::fromLocalFile(node->path));
             }
 
             node->watched = true;

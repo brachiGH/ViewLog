@@ -210,7 +210,7 @@ Node* getPathFromID(Node* item, int id)
 }
 
 void setColorItem(QTreeWidgetItem* item, bool select) {
-    QColor color(192, 224, 224);
+    QColor color(0, 49, 76);
     if (!select) {
         color = QColor(255, 255, 255);
     }
