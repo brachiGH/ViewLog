@@ -17,7 +17,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-#include <nlohmann/json.hpp>
+#include "external-libs/json.hpp"
 #include <vector>
 #include <unordered_set>
 #include <filesystem>

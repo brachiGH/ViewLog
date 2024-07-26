@@ -3,3 +3,5 @@ MediaPlayer.pro.user
 ui_mainwindow.h
 .vs
 .vscode
+Makefile
+.qmake.stash

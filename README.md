@@ -4,27 +4,39 @@ ViewLog is a video tracking app built with Qt6. ViewLog allows you to keep track
 
 # Build
 
-First install the nlohmann/json library
-
-Ubuntu/Debian:
-You can install the nlohmann-json3-dev package using apt:
 
 ```console
-sudo apt update
-sudo apt install nlohmann-json3-dev
-```
-
-Fedora:
-You can install the json-devel package using dnf:
-
-```console
-Copy code
-sudo dnf install json-devel
-```
-
-build
-```console
+rm -rf build
 mkdir build
 cd build
 qmake ../MediaPlayer.pro
+make
 ```
+
+if did notwork try
+
+```console
+rm -rf build
+mkdir build
+cd build
+"/PATH/TO/Qt/6.x/gcc_64/bin/qmake" ../MediaPlayer.pro
+make
+```
+
+### if you are using Windows
+
+windeployqt Tool (Windows)
+
+Qt provides a tool called windeployqt that simplifies the deployment process by automatically copying necessary Qt libraries and plugins:
+
+Open a Command Prompt and navigate to the directory where your application executable resides.
+
+Run windeployqt:
+
+```console
+windeployqt your_application.exe
+```
+
+> NOTE: if you get a "libstdc++-6.dll" not found or "libgcc_s_seh-1.dll" not found
+>
+> you can copy the missing dlls from "PATH/TO/Qt/tools/mingw*****/bin"
