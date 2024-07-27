@@ -3,5 +3,10 @@
         <file alias="folder_icon">assets/folder_icon.png</file>
         <file alias="video_icon">assets/video_icon.png</file>
         <file alias="file_icon">assets/file_icon.png</file>
+        <file alias="/images/branch-closed.png">assets/treeWidget/stylesheet-branch-closed.png</file>
+        <file alias="/images/branch-end.png">assets/treeWidget/stylesheet-branch-end.png</file>
+        <file alias="/images/branch-more.png">assets/treeWidget/stylesheet-branch-more.png</file>
+        <file alias="/images/branch-open.png">assets/treeWidget/stylesheet-branch-open.png</file>
+        <file alias="/images/vline.png">assets/treeWidget/stylesheet-vline.png</file>
     </qresource>
 </RCC>

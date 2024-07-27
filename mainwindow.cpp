@@ -28,6 +28,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->horizontalSlider_Duration->setRange(0, Player->duration() / 1000);
 
+    ui->horizontalSlider_Duration->setStyleSheet(
+        "QSlider::handle:horizontal {"
+            "background: transparent;"
+            "width: 0px;"
+        "}");
+
 
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeWidget, &QTreeWidget::customContextMenuRequested, this, &MainWindow::on_treeWidget_customContextMenuRequested);
@@ -39,6 +45,28 @@ MainWindow::MainWindow(QWidget *parent)
         foldertree = new FolderTree(ui->treeWidget, rootPath.toStdU16String());
         foldertree->uiBuildTree();
     }
+
+    ui->treeWidget->setStyleSheet(
+        "QTreeView::branch:has-siblings:!adjoins-item {"
+        "    border-image: url(:/images/vline.png) 0;"
+        "}"
+        "QTreeView::branch:has-siblings:adjoins-item {"
+        "    border-image: url(:/images/branch-more.png) 0;"
+        "}"
+        "QTreeView::branch:!has-children:!has-siblings:adjoins-item {"
+        "    border-image: url(:/images/branch-end.png) 0;"
+        "}"
+        "QTreeView::branch:has-children:!has-siblings:closed,"
+        "QTreeView::branch:closed:has-children:has-siblings {"
+        "    border-image: none;"
+        "    image: url(:/images/branch-closed.png);"
+        "}"
+        "QTreeView::branch:open:has-children:!has-siblings,"
+        "QTreeView::branch:open:has-children:has-siblings {"
+        "    border-image: none;"
+        "    image: url(:/images/branch-open.png);"
+        "}"
+    );
 }
 
 MainWindow::~MainWindow()
@@ -190,6 +218,41 @@ void MainWindow::PlayVideo(QString FileName)
     Video->setVisible(true);
     Video->show();
 
+    // QVBoxLayout *layout = new QVBoxLayout(this);
+
+        // Video = new QVideoWidget(this);
+        // // layout->addWidget(Video);
+        // Video->setParent(ui->groupBox_Video);
+
+        // QMediaPlayer *mediaPlayer = new QMediaPlayer(this);
+        // QAudioOutput *audioOutput = new QAudioOutput(this);
+        // mediaPlayer->setAudioOutput(audioOutput);
+        // mediaPlayer->setVideoOutput(Video);
+
+        // QSlider *slider = new QSlider(Qt::Horizontal, this);
+        // layout->addWidget(slider);
+
+        // QLabel *errorLabel = new QLabel(this);
+        // layout->addWidget(errorLabel);
+
+
+    // mediaPlayer->setSource(QUrl::fromLocalFile(FileName));
+    // mediaPlayer->play();
+
+        // connect(mediaPlayer, &QMediaPlayer::positionChanged, this, [=](qint64 position) {
+        //     slider->setValue(position);
+        // });
+
+        // connect(mediaPlayer, &QMediaPlayer::durationChanged, this, [=](qint64 duration) {
+        //     slider->setRange(0, duration);
+        // });
+
+        // connect(slider, &QSlider::sliderMoved, mediaPlayer, &QMediaPlayer::setPosition);
+
+        // connect(mediaPlayer, &QMediaPlayer::errorOccurred, this, [=](QMediaPlayer::Error error) {
+        //     errorLabel->setText(mediaPlayer->errorString());
+        // });
+
     on_pushButton_Play_Pause_clicked();
 }
 
@@ -293,4 +356,3 @@ void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
 void MainWindow::openFileWithDefaultApp(const QString &filePath) {
     QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
 }
-
