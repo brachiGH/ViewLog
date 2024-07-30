@@ -288,7 +288,7 @@
      <x>0</x>
      <y>0</y>
      <width>1330</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSelect_Video_File">
@@ -310,6 +310,9 @@
   </action>
   <action name="playInViewLOg_check_box">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">
