@@ -123,10 +123,10 @@ void MainWindow::on_actionOpen_triggered()
 }
 
 
-void MainWindow::on_horizontalSlider_Duration_valueChanged(int value)
-{
-    Player->setPosition(value * 1000);
-}
+// void MainWindow::on_horizontalSlider_Duration_valueChanged(int value)
+// {
+//     Player->setPosition(value * 1000);
+// }
 
 
 void MainWindow::on_pushButton_Play_Pause_clicked()
@@ -216,41 +216,6 @@ void MainWindow::PlayVideo(QString FileName)
     Player->setSource(QUrl::fromLocalFile(FileName));
     Video->setVisible(true);
     Video->show();
-
-    // QVBoxLayout *layout = new QVBoxLayout(this);
-
-        // Video = new QVideoWidget(this);
-        // // layout->addWidget(Video);
-        // Video->setParent(ui->groupBox_Video);
-
-        // QMediaPlayer *mediaPlayer = new QMediaPlayer(this);
-        // QAudioOutput *audioOutput = new QAudioOutput(this);
-        // mediaPlayer->setAudioOutput(audioOutput);
-        // mediaPlayer->setVideoOutput(Video);
-
-        // QSlider *slider = new QSlider(Qt::Horizontal, this);
-        // layout->addWidget(slider);
-
-        // QLabel *errorLabel = new QLabel(this);
-        // layout->addWidget(errorLabel);
-
-
-    // mediaPlayer->setSource(QUrl::fromLocalFile(FileName));
-    // mediaPlayer->play();
-
-        // connect(mediaPlayer, &QMediaPlayer::positionChanged, this, [=](qint64 position) {
-        //     slider->setValue(position);
-        // });
-
-        // connect(mediaPlayer, &QMediaPlayer::durationChanged, this, [=](qint64 duration) {
-        //     slider->setRange(0, duration);
-        // });
-
-        // connect(slider, &QSlider::sliderMoved, mediaPlayer, &QMediaPlayer::setPosition);
-
-        // connect(mediaPlayer, &QMediaPlayer::errorOccurred, this, [=](QMediaPlayer::Error error) {
-        //     errorLabel->setText(mediaPlayer->errorString());
-        // });
 
     on_pushButton_Play_Pause_clicked();
 }
