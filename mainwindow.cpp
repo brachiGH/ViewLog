@@ -36,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->treeWidget, &QTreeWidget::customContextMenuRequested, this, &MainWindow::on_treeWidget_customContextMenuRequested);
 
     ui->treeWidget->setColumnCount(1);
 
