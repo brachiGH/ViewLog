@@ -8,7 +8,7 @@
 #include <QtWidgets>
 #include <QtGui>
 #include <QAudioOutput>
-#include "FoldetTree.h"
+#include "headers/FoldetTree.h"
 #include <iostream>
 #include <QMenu>
 #include <QAction>
