@@ -83,7 +83,9 @@ void MainWindow::positionChanged(qint64 duration)
 {
     if (!ui->horizontalSlider_Duration->isSliderDown())
     {
+        programmaticChangeDuration = true;
         ui->horizontalSlider_Duration->setValue(duration / 1000);
+        programmaticChangeDuration = false;
     }
     updateDuration(duration / 1000);
 }
@@ -123,10 +125,12 @@ void MainWindow::on_actionOpen_triggered()
 }
 
 
-// void MainWindow::on_horizontalSlider_Duration_valueChanged(int value)
-// {
-//     Player->setPosition(value * 1000);
-// }
+void MainWindow::on_horizontalSlider_Duration_valueChanged(int value)
+{
+    if (!programmaticChangeDuration) {
+        Player->setPosition(value * 1000);
+    }
+}
 
 
 void MainWindow::on_pushButton_Play_Pause_clicked()

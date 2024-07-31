@@ -35,7 +35,7 @@ private slots:
 
     void on_actionOpen_triggered();
 
-    // void on_horizontalSlider_Duration_valueChanged(int value);
+    void on_horizontalSlider_Duration_valueChanged(int value);
 
     void on_pushButton_Play_Pause_clicked();
 
@@ -71,6 +71,7 @@ private:
     qint64 mDuration;
     bool IS_Pause = true;
     bool IS_Muted = false;
+    bool programmaticChangeDuration = false;
 
     FolderTree* foldertree = nullptr;
 
