@@ -1,4 +1,6 @@
-#include "headers/FoldetTree.h"
+#include "headers/FolderTree.h"
+
+namespace fs = std::filesystem;
 
 std::unordered_set<std::string> videoExtensions = {
     ".3gp",   // 3GP (3GPP file format)
@@ -26,50 +28,47 @@ std::unordered_set<std::string> videoExtensions = {
 
 FolderTree::FolderTree(QTreeWidget* _MainTree, const fs::path& path)
 {
-    MainTree = _MainTree; 
-    rootJson["files"];
+    MainTree = _MainTree;
 
     // Write the modified content to a writable location
     QString writableLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(writableLocation);  // Ensure the directory exists
-    filePath = writableLocation + "/tree.json";
+    _TreeJsonFilePath = writableLocation + __TREE_WIDGET_FILE_;
 
 
-    readTreeFile();
-    rootJson["lastFolder"] = path.string();
+    if (!readTreeFile()) {
+        qDebug() << __TREE_WIDGET_FILE_ << " Does not exist";
+        _TreeWidgetJson["nodes"] = {};
+    }
+    _TreeWidgetJson["lastFolder"] = path.string();
 
-    root = buildTree(path);
-    saveJsonTree();
-    
-    firstUpdateFromJsonfile = false;
+    root = buildNodesTree(path);
+    _MergeJsonFromNodes(root);
+    saveTreeWidgetToJson();
 }
 
 
 
-Node* FolderTree::buildTree(const fs::path& path)
+Node* FolderTree::buildNodesTree(const fs::path& path)
 {
-    Node* node = new Node(path, fs::is_regular_file(path));
+    bool isfile = fs::is_regular_file(path);
+    bool isMediatFile = false;  
+    if (isfile && path.has_extension()) {
+        std::string fileextension = toLower(path.extension().string());
+        if (videoExtensions.find(fileextension) != videoExtensions.end()) {
+            isMediatFile = true;
+        }
+    }
+    Node* node = new Node(path, isfile, isMediatFile);
 
     if (fs::is_directory(path)) {
         for (const auto& entry : fs::directory_iterator(path)) {
-            node->children.push_back(buildTree(entry.path()));
+            node->children.push_back(buildNodesTree(entry.path()));
         }
     }
     
     return node;
 }
-
-std::vector<bool> FolderTree::getStats(std::string path)
-{
-    for (auto file : rootJson["files"]) {
-        if (file["path"] == path) {
-            return {file["Expanded"], file["watched"]};
-        }
-    }
-
-    return {false, false};
-}
-
 
 void FolderTree::uiBuildTree() {
     _uiBuildTree(root, nullptr);
@@ -93,12 +92,15 @@ void FolderTree::_uiBuildTree(Node* node, QTreeWidgetItem* parent) {
 
     QIcon icon;
     if (node->isFile) {
-        std::string fileextension = toLower(getFileExtension(node->path.toStdString()));
-        if (videoExtensions.find(fileextension) != videoExtensions.end()) {
+        if (node->isMediaFile) {
             icon = QIcon(":/video_icon");
         } else {
             icon = QIcon(":/file_icon");
-            node->id = -node->id;
+        }
+
+
+        if (node->watched) {
+            setNodeBackgroundColor(item, true);
         }
     } else {
         icon = QIcon(":/folder_icon");
@@ -106,16 +108,11 @@ void FolderTree::_uiBuildTree(Node* node, QTreeWidgetItem* parent) {
 
     item->setIcon(0, icon);
     item->setExpanded(node->Expanded);
-    item->setData(0, Qt::UserRole, node->id);
-
-    if (node->watched && node->isFile) {
-        setColorItem(item, true);
-    }
+    item->setData(0, Qt::UserRole, (uint64_t)(&_TreeWidgetJson["nodes"][node->path.toStdString()]));
 
     if (!node->isFile) {
         item->setExpanded(node->Expanded);
     }
-
 
     for (Node* child : node->children) {
         _uiBuildTree(child, item);
@@ -123,33 +120,38 @@ void FolderTree::_uiBuildTree(Node* node, QTreeWidgetItem* parent) {
 }
 
 
-void FolderTree::saveJsonTree() {
-    nodeToJson(root);
-
-
-    QFile outFile(filePath);
+bool FolderTree::saveTreeWidgetToJson() {
+    qDebug() << _TreeJsonFilePath;
+    QFile outFile(_TreeJsonFilePath);
     if (outFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         QTextStream out(&outFile);
-        out << QString::fromStdString(rootJson.dump(4));
+        out << QString::fromStdString(_TreeWidgetJson.dump(4));
         outFile.close();
     } else {
         std::cerr << "Failed to open file for writing: " << outFile.errorString().toStdString() << std::endl;
+        return 0;
     }
+
+    return 1;
 }
 
 
-void FolderTree::readTreeFile()
+bool FolderTree::readTreeFile()
 {
-    QFile file(filePath);
+    QFile file(_TreeJsonFilePath);
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
         QString jsonString = in.readAll();
         file.close();
 
         if (!jsonString.isEmpty()) {
-            rootJson = json::parse(jsonString.toStdString());
+            _TreeWidgetJson = json::parse(jsonString.toStdString());
         }
+    } else {
+        return false;
     }
+
+    return true;
 }
 
 
@@ -157,66 +159,40 @@ FolderTree::~FolderTree() {
     delete root;
 }
 
-Node* FolderTree::getroot() {
-    return root;
-}
 
+void FolderTree::_MergeJsonFromNodes(Node* node) {
+    std::string path = node->path.toStdString();
+    auto fNode_res = _TreeWidgetJson["nodes"].find(path);
 
-void FolderTree::nodeToJson(Node* node) {
-    json j;
-    j["path"] = node->path.toStdString();
-    j["id"] = node->id;
-
-    if (firstUpdateFromJsonfile) {
-        std::vector<bool> s = getStats(node->path.toStdString());
-
-        j["Expanded"] = (bool)s[0];
-        j["watched"] = (bool)s[1];
-
-        node->Expanded = (bool)s[0];
-        node->watched = (bool)s[1];
+    if (fNode_res != _TreeWidgetJson["nodes"].end()) {
+        node->watched = _TreeWidgetJson["nodes"][path]["watched"];
+        node->Expanded = _TreeWidgetJson["nodes"][path]["Expanded"];
     } else {
-        j["Expanded"] = node->Expanded;
-        j["watched"] = node->watched;
+        json j;
+        j["path"] = path;
+        j["isMediaFile"] = node->isMediaFile;
+        j["isfile"] = node->isFile;
+        j["watched"] = false;
+        j["Expanded"] = false;
+        
+        _TreeWidgetJson["nodes"][path] = j;
     }
 
-    rootJson["files"][node->path.toStdString()] = j;
 
     for (Node* child : node->children) {
-        nodeToJson(child);
+        _MergeJsonFromNodes(child);
     }
 }
 
 
-Node* getPathFromID(Node* item, int id)
-{
-    // negative ids are for none video file (note that folder have positive ids)
-    if (item == nullptr) {
-        return nullptr;
+void setNodeBackgroundColor(QTreeWidgetItem* item, bool select) {
+    QBrush defaultBrush;
+    if (select) {
+        QColor color _SELECT_BACKGROUND_COLOR_;
+        defaultBrush = QBrush(color);
     }
 
-    if (item->id == id) {
-        return item;
-    }
-
-    for (Node* child : item->children) {
-        Node* result = getPathFromID(child, id);
-        if (result != nullptr) {
-            return result;
-        }
-    }
-
-    return nullptr;
-}
-
-void setColorItem(QTreeWidgetItem* item, bool select) {
-    QColor color(0, 49, 76);
-    if (!select) {
-        color = QColor(255, 255, 255);
-    }
-    QBrush brush(color);
-
-    item->setBackground(0, brush);
+    item->setBackground(0, defaultBrush);
 }
 
 
@@ -227,7 +203,7 @@ QString getLastTree() {
     // Write the modified content to a writable location
     QString writableLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(writableLocation);  // Ensure the directory exists
-    QString filePath = writableLocation + "/tree.json";
+    QString filePath = writableLocation + __TREE_WIDGET_FILE_;
 
     QFile file(filePath);
     if (file.open(QIODevice::ReadOnly)) {
@@ -250,10 +226,6 @@ QString getLastTree() {
     return QString::fromStdString("");
 }
 
-std::string getFileExtension(const std::string& filePath) {
-    fs::path path(filePath);
-    return path.extension().string();
-}
 
 std::string toLower(const std::string& str) {
     std::string result = str;

@@ -1,5 +1,7 @@
 #ifndef FOLDETTREE_H
 #define FOLDETTREE_H
+#define __TREE_WIDGET_FILE_  "/treeWidgetData.json"
+#define  _SELECT_BACKGROUND_COLOR_ (0, 49, 76);
 
 #include <iostream>
 #include <vector>
@@ -24,24 +26,21 @@
 #include <cctype>
 
 
-namespace fs = std::filesystem;
+
 using json = nlohmann::json;
-static int nextID = 0;
 
 class Node {
 public:
     std::string name;
     QString path;
-    int id;
     bool isFile;
     bool Expanded = false;
     bool watched = false;
+    bool isMediaFile = false;
     std::vector<Node*> children;
 
-    Node(const fs::path& path, bool isFile) : name(path.filename().string()), isFile(isFile),
-        path(QString::fromStdString(path.string())), id(nextID++) {
-
-    }
+    Node(const std::filesystem::path& path, bool isFile, bool isMediaFile) : name(path.filename().string()), isFile(isFile),
+        isMediaFile(isMediaFile), path(QString::fromStdString(path.string())) {}
 
     ~Node() {
         for (Node* child : children) {
@@ -56,39 +55,30 @@ class FolderTree
 {
     Node* root;
     QTreeWidget* MainTree;
-    json rootJson;
-    QString filePath;
-    bool firstUpdateFromJsonfile = true;
+    json _TreeWidgetJson;
+    QString _TreeJsonFilePath;
 public:
-    FolderTree(QTreeWidget* _MainTree, const fs::path& path);
+    FolderTree(QTreeWidget* _MainTree, const std::filesystem::path& path);
 
-    Node* buildTree(const fs::path& path);
-
-    std::vector<bool> getStats(std::string path); // {Expanded, watched}
+    Node* buildNodesTree(const std::filesystem::path& path);
 
     void uiBuildTree();
 
-    void saveJsonTree();
-
-    Node* getroot();
+    bool saveTreeWidgetToJson();
 
     ~FolderTree();
 private:
     void _uiBuildTree(Node* node, QTreeWidgetItem* parent);
 
-    void readTreeFile();
+    bool readTreeFile();
 
-    void nodeToJson(Node* node);
+    void _MergeJsonFromNodes(Node* node);
 };
 
 
-Node* getPathFromID(Node* item, int id);
-
-void setColorItem(QTreeWidgetItem* item, bool select);
+void setNodeBackgroundColor(QTreeWidgetItem* item, bool select);
 
 QString getLastTree();
-
-std::string getFileExtension(const std::string& filePath);
 
 std::string toLower(const std::string& str);
 

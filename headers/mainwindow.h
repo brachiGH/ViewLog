@@ -8,14 +8,41 @@
 #include <QtWidgets>
 #include <QtGui>
 #include <QAudioOutput>
-#include "headers/FoldetTree.h"
+#include "headers/FolderTree.h"
 #include <iostream>
 #include <QMenu>
 #include <QAction>
 #include <QDebug>
 #include <QUrl>
 #include <QDesktopServices>
+#include <Qstring>
+#include <string>
 
+
+const QString _TREE_WIDGET_STYLE_  = "QTreeView::branch:has-siblings:!adjoins-item {"
+        "    border-image: url(:/images/vline.png) 0;"
+        "}"
+        "QTreeView::branch:has-siblings:adjoins-item {"
+        "    border-image: url(:/images/branch-more.png) 0;"
+        "}"
+        "QTreeView::branch:!has-children:!has-siblings:adjoins-item {"
+        "    border-image: url(:/images/branch-end.png) 0;"
+        "}"
+        "QTreeView::branch:has-children:!has-siblings:closed,"
+        "QTreeView::branch:closed:has-children:has-siblings {"
+        "    border-image: none;"
+        "    image: url(:/images/branch-closed.png);"
+        "}"
+        "QTreeView::branch:open:has-children:!has-siblings,"
+        "QTreeView::branch:open:has-children:has-siblings {"
+        "    border-image: none;"
+        "    image: url(:/images/branch-open.png);"
+        "}";
+
+const QString _SLIDER_STYLE_ = "QSlider::handle:horizontal {"
+            "background: transparent;"
+            "width: 0px;"
+        "}";
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

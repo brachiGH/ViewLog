@@ -14,7 +14,7 @@ SOURCES += \
     src/mainwindow.cpp
 
 HEADERS += \
-    headers/FoldetTree.h \
+    headers/FolderTree.h \
     headers/mainwindow.h
 
 FORMS += \

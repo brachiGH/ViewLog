@@ -28,11 +28,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->horizontalSlider_Duration->setRange(0, Player->duration() / 1000);
 
-    ui->horizontalSlider_Duration->setStyleSheet(
-        "QSlider::handle:horizontal {"
-            "background: transparent;"
-            "width: 0px;"
-        "}");
+    ui->horizontalSlider_Duration->setMinimum(0);
+    ui->horizontalSlider_Duration->setMaximum(100);
+    ui->horizontalSlider_Duration->setStyleSheet(_SLIDER_STYLE_);
 
 
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -45,27 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
         foldertree->uiBuildTree();
     }
 
-    ui->treeWidget->setStyleSheet(
-        "QTreeView::branch:has-siblings:!adjoins-item {"
-        "    border-image: url(:/images/vline.png) 0;"
-        "}"
-        "QTreeView::branch:has-siblings:adjoins-item {"
-        "    border-image: url(:/images/branch-more.png) 0;"
-        "}"
-        "QTreeView::branch:!has-children:!has-siblings:adjoins-item {"
-        "    border-image: url(:/images/branch-end.png) 0;"
-        "}"
-        "QTreeView::branch:has-children:!has-siblings:closed,"
-        "QTreeView::branch:closed:has-children:has-siblings {"
-        "    border-image: none;"
-        "    image: url(:/images/branch-closed.png);"
-        "}"
-        "QTreeView::branch:open:has-children:!has-siblings,"
-        "QTreeView::branch:open:has-children:has-siblings {"
-        "    border-image: none;"
-        "    image: url(:/images/branch-open.png);"
-        "}"
-    );
+    ui->treeWidget->setStyleSheet(_TREE_WIDGET_STYLE_);
 }
 
 MainWindow::~MainWindow()
@@ -109,12 +87,12 @@ void MainWindow::on_actionOpen_triggered()
 {
     QString folderPath = QFileDialog::getExistingDirectory(this, tr("Select Folder"));
 
-    std::cout << folderPath.toStdString() << std::endl;
-    // PlayVideo(FileName);
+    qDebug() << folderPath.toStdString();
 
     if (folderPath != "") {
         std::filesystem::path fsPath = folderPath.toStdU16String();  // Convert QString to std::u16string
 
+        ui->treeWidget->clear();
         if (foldertree != nullptr) {
             delete foldertree;
         }
@@ -196,19 +174,14 @@ void MainWindow::on_pushButton_Seek_Forward_clicked()
 
 void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 {
-    int id = item->data(0, Qt::UserRole).toInt();
-    Node* node = getPathFromID(foldertree->getroot(), id);
-    if (node) {
-        std::cout << node->name << std::endl;
-        if (!(node->isFile)) {
-            node->Expanded = !(item->isExpanded());
-            item->setExpanded(node->Expanded);
-        }
-
-        foldertree->saveJsonTree();
-    } else {
-        std::cout<<"error file not located."<<std::endl;
+    uint64_t ptr = item->data(0, Qt::UserRole).toULongLong();
+    json* itemj = (json*)ptr;
+    if (!(*itemj)["isfile"]) {
+        (*itemj)["Expanded"] = !(*itemj)["Expanded"];
+        item->setExpanded((bool)((*itemj)["Expanded"]));
     }
+
+    foldertree->saveTreeWidgetToJson();
 }
 
 void MainWindow::PlayVideo(QString FileName)
@@ -227,53 +200,49 @@ void MainWindow::PlayVideo(QString FileName)
 
 void MainWindow::on_treeWidget_itemCollapsed(QTreeWidgetItem *item)
 {
-    int id = item->data(0, Qt::UserRole).toInt();
-    Node* node = getPathFromID(foldertree->getroot(), id);
-    if (node) {
-        if (node->Expanded) {
-            node->Expanded = false;
-            foldertree->saveJsonTree();
+    uint64_t ptr = item->data(0, Qt::UserRole).toULongLong();
+    if (ptr) {
+        json* itemj = (json*)ptr;
+        if (!(*itemj)["Expanded"]) {
+            (*itemj)["Expanded"] = false;
+            foldertree->saveTreeWidgetToJson();
         }
     } else {
-        std::cout<<"error file not located."<<std::endl;
+        qDebug() << "Item is not rended yet.";
     }
 }
 
 
 void MainWindow::on_treeWidget_itemExpanded(QTreeWidgetItem *item)
 {
-    int id = item->data(0, Qt::UserRole).toInt();
-    Node* node = getPathFromID(foldertree->getroot(), id);
-    if (node) {
-        if (!node->Expanded) {
-            node->Expanded = true;
-            foldertree->saveJsonTree();
+    uint64_t ptr = item->data(0, Qt::UserRole).toULongLong();
+    if (ptr) {
+        json* itemj = (json*)ptr;
+        if (!(*itemj)["Expanded"]) {
+            (*itemj)["Expanded"] = true;
+            foldertree->saveTreeWidgetToJson();
         }
     } else {
-        std::cout<<"error file not located."<<std::endl;
+        qDebug() << "Item is not rended yet.";
     }
 }
 
 void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    int id = item->data(0, Qt::UserRole).toInt();
-    Node* node = getPathFromID(foldertree->getroot(), id);
-    if (node) {
-        std::cout << node->name << std::endl;
-        if (node->isFile) {
-            if (id > 0 && ui->playInViewLOg_check_box->isChecked()) {
-                PlayVideo(node->path);
-            } else {
-                QDesktopServices::openUrl(QUrl::fromLocalFile(node->path));
-            }
-
-            node->watched = true;
-            setColorItem(item, true);
+    uint64_t ptr = item->data(0, Qt::UserRole).toULongLong();
+    json* itemj = (json*)ptr;
+    if ((*itemj)["isfile"]) {
+        std::string path = (*itemj)["path"];
+        QString Qpath = QString::fromStdString(path);
+        if ((*itemj)["isMediaFile"] && ui->playInViewLOg_check_box->isChecked()) {
+            PlayVideo(Qpath);
+        } else {
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Qpath));
         }
 
-        foldertree->saveJsonTree();
-    } else {
-        std::cout<<"error file not located."<<std::endl;
+        (*itemj)["watched"] = true;
+        setNodeBackgroundColor(item, true);
+        foldertree->saveTreeWidgetToJson();
     }
 }
 
@@ -283,37 +252,28 @@ void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
     if (item) {
         QMenu contextMenu(this);
 
+        uint64_t ptr = item->data(0, Qt::UserRole).toULongLong();
+        json* itemj = (json*)ptr;
+        qDebug() << (std::string)(*itemj)["path"];
+
         QAction *action1 = new QAction("Unselect", this);
         connect(action1, &QAction::triggered, this, [=]() {
-            int id = item->data(0, Qt::UserRole).toInt();
-            Node* node = getPathFromID(foldertree->getroot(), id);
-            if (node) {
-                std::cout << node->name << std::endl;
-                node->watched = false;
-                setColorItem(item, false);
+            (*itemj)["watched"] = false;
+            setNodeBackgroundColor(item, false);
 
-                foldertree->saveJsonTree();
-            } else {
-                std::cout<<"error file not located."<<std::endl;
-            }
+            foldertree->saveTreeWidgetToJson();
         });
         contextMenu.addAction(action1);
 
         QAction *action2 = new QAction("Open with default", this);
         connect(action2, &QAction::triggered, this, [=]() {
-            int id = item->data(0, Qt::UserRole).toInt();
-            Node* node = getPathFromID(foldertree->getroot(), id);
-            if (node) {
-                std::cout << node->name << std::endl;
-                openFileWithDefaultApp(node->path);
+            QString Qpath = QString::fromStdString((std::string)(*itemj)["path"]);
+            openFileWithDefaultApp(Qpath);
 
-                node->watched = true;
-                setColorItem(item, true);
+            (*itemj)["watched"] = true;
+            setNodeBackgroundColor(item, true);
 
-                foldertree->saveJsonTree();
-            } else {
-                std::cout<<"error file not located."<<std::endl;
-            }
+            foldertree->saveTreeWidgetToJson();
         });
         contextMenu.addAction(action2);
 
