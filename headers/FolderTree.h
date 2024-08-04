@@ -1,7 +1,7 @@
 #ifndef FOLDETTREE_H
 #define FOLDETTREE_H
 #define __TREE_WIDGET_FILE_  "/treeWidgetData.json"
-#define  _SELECT_BACKGROUND_COLOR_ (0, 49, 76);
+#define  _SELECT_BACKGROUND_COLOR_ (192, 154, 219, 128);
 
 #include <iostream>
 #include <vector>

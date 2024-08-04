@@ -37,7 +37,7 @@ FolderTree::FolderTree(QTreeWidget* _MainTree, const fs::path& path)
 
 
     if (!readTreeFile()) {
-        qDebug() << __TREE_WIDGET_FILE_ << " Does not exist";
+        qInfo() << __TREE_WIDGET_FILE_ << " Does not exist";
         _TreeWidgetJson["nodes"] = {};
     }
     _TreeWidgetJson["lastFolder"] = path.string();
@@ -121,14 +121,14 @@ void FolderTree::_uiBuildTree(Node* node, QTreeWidgetItem* parent) {
 
 
 bool FolderTree::saveTreeWidgetToJson() {
-    qDebug() << _TreeJsonFilePath;
+    qInfo() << "Saving json file " <<_TreeJsonFilePath;
     QFile outFile(_TreeJsonFilePath);
     if (outFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         QTextStream out(&outFile);
         out << QString::fromStdString(_TreeWidgetJson.dump(4));
         outFile.close();
     } else {
-        std::cerr << "Failed to open file for writing: " << outFile.errorString().toStdString() << std::endl;
+        qWarning() << "Failed to open file for writing: " << outFile.errorString().toStdString();
         return 0;
     }
 

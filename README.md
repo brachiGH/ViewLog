@@ -33,7 +33,7 @@ Open a Command Prompt and navigate to the directory where your application execu
 Run windeployqt:
 
 ```console
-windeployqt your_application.exe
+windeployqt --qmldir c:\PATH\TO\ViewLog\resources your_application.exe
 ```
 
 > NOTE: if you get a "libstdc++-6.dll" not found or "libgcc_s_seh-1.dll" not found

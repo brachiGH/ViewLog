@@ -11,11 +11,13 @@ MainWindow::MainWindow(QWidget *parent)
     AudioOutput = new QAudioOutput();
     Player->setAudioOutput(AudioOutput);
 
-    ui->pushButton_Play_Pause->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-    ui->pushButton_Stop->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
-    ui->pushButton_Seek_Backward->setIcon(style()->standardIcon(QStyle::SP_MediaSeekBackward));
-    ui->pushButton_Seek_Forward->setIcon(style()->standardIcon(QStyle::SP_MediaSeekForward));
-    ui->pushButton_Volume->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+    ui->pushButton_Play_Pause->setIcon(QIcon(":/assets/controls/play_icon.png"));
+    ui->pushButton_Stop->setIcon(QIcon(":/assets/controls/box_icon.png"));
+    ui->pushButton_Seek_Backward->setIcon(QIcon(":/assets/controls/play_back_icon.png"));
+    ui->pushButton_Seek_Forward->setIcon(QIcon(":/assets/controls/play_forward_icon.png"));
+    ui->pushButton_Volume->setIcon(QIcon(":/assets/controls/volume_high_icon.png"));
+
+    ui->pushButton_Tree->setIcon(QIcon(":/assets/treeWidget/collapse-Tree.png"));
 
     ui->horizontalSlider_Volume->setMinimum(0);
     ui->horizontalSlider_Volume->setMaximum(100);
@@ -26,11 +28,17 @@ MainWindow::MainWindow(QWidget *parent)
     connect(Player, &QMediaPlayer::durationChanged, this, &MainWindow::durationChanged);
     connect(Player, &QMediaPlayer::positionChanged, this, &MainWindow::positionChanged);
 
-    ui->horizontalSlider_Duration->setRange(0, Player->duration() / 1000);
+    // #18171a bacground color
+    ui->quickWidget->setClearColor(QColor(24, 23, 26));
 
-    ui->horizontalSlider_Duration->setMinimum(0);
-    ui->horizontalSlider_Duration->setMaximum(100);
-    ui->horizontalSlider_Duration->setStyleSheet(_SLIDER_STYLE_);
+
+    ui->quickWidget->setSource(QUrl(QStringLiteral("qrc:/duration_slider.qml")));
+
+    QObject *rootObject = ui->quickWidget->rootObject();
+    sliderDurationObject = rootObject->findChild<QObject*>("sliderDurationObject");
+
+    connect(rootObject, SIGNAL(slider_duration_Changed(int)), this, SLOT(on_slider_duration_Changed(int)));
+    connect(rootObject, SIGNAL(durationsliderPressedChanged(bool)), this, SLOT(onDurationSliderPressedChanged(bool)));
 
 
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -43,7 +51,13 @@ MainWindow::MainWindow(QWidget *parent)
         foldertree->uiBuildTree();
     }
 
+
+    qInfo() << "Creating the treewidget";
     ui->treeWidget->setStyleSheet(_TREE_WIDGET_STYLE_);
+    ui->treeWidget->sortItems(0, Qt::AscendingOrder);
+
+    qInfo() << "Finished building UI";
+
 }
 
 MainWindow::~MainWindow()
@@ -54,15 +68,22 @@ MainWindow::~MainWindow()
 void MainWindow::durationChanged(qint64 duration)
 {
     mDuration = duration / 1000;
-    ui->horizontalSlider_Duration->setMaximum(mDuration);
+    sliderDurationObject->setProperty("to", mDuration);
+}
+
+void MainWindow::onDurationSliderPressedChanged(bool pressed)
+{
+    qDebug() << "duration changed";
+
+    durationSliderPressPressed = pressed;
 }
 
 void MainWindow::positionChanged(qint64 duration)
 {
-    if (!ui->horizontalSlider_Duration->isSliderDown())
+    if (!durationSliderPressPressed)
     {
         programmaticChangeDuration = true;
-        ui->horizontalSlider_Duration->setValue(duration / 1000);
+        sliderDurationObject->setProperty("value", duration / 1000);
         programmaticChangeDuration = false;
     }
     updateDuration(duration / 1000);
@@ -87,7 +108,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     QString folderPath = QFileDialog::getExistingDirectory(this, tr("Select Folder"));
 
-    qDebug() << folderPath.toStdString();
+    qInfo() << "Loading videos from " << folderPath.toStdString();
 
     if (folderPath != "") {
         std::filesystem::path fsPath = folderPath.toStdU16String();  // Convert QString to std::u16string
@@ -103,7 +124,7 @@ void MainWindow::on_actionOpen_triggered()
 }
 
 
-void MainWindow::on_horizontalSlider_Duration_valueChanged(int value)
+void MainWindow::on_slider_duration_Changed(int value)
 {
     if (!programmaticChangeDuration) {
         Player->setPosition(value * 1000);
@@ -117,13 +138,13 @@ void MainWindow::on_pushButton_Play_Pause_clicked()
     {
         IS_Pause = false;
         Player->play();
-        ui->pushButton_Play_Pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+        ui->pushButton_Play_Pause->setIcon(QIcon(":/assets/controls/pause_icon.png"));
     }
     else
     {
         IS_Pause = true;
         Player->pause();
-        ui->pushButton_Play_Pause->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+        ui->pushButton_Play_Pause->setIcon(QIcon(":/assets/controls/play_icon.png"));
     }
 }
 
@@ -139,13 +160,13 @@ void MainWindow::on_pushButton_Volume_clicked()
     if (IS_Muted == false)
     {
         IS_Muted = true;
-        ui->pushButton_Volume->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
+        ui->pushButton_Volume->setIcon(QIcon(":/assets/controls/volume_mute_icon.png"));
         AudioOutput->setMuted(true);
     }
     else
     {
         IS_Muted = false;
-        ui->pushButton_Volume->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+        ui->pushButton_Volume->setIcon(QIcon(":/assets/controls/volume_high_icon.png"));
         AudioOutput->setMuted(false);
     }
 }
@@ -153,21 +174,22 @@ void MainWindow::on_pushButton_Volume_clicked()
 
 void MainWindow::on_horizontalSlider_Volume_valueChanged(int value)
 {
+    qInfo() << "Volume is set to " << value << "%";
     AudioOutput->setVolume(value);
 }
 
 
 void MainWindow::on_pushButton_Seek_Backward_clicked()
 {
-    ui->horizontalSlider_Duration->setValue(ui->horizontalSlider_Duration->value() - 20);
-    Player->setPosition(ui->horizontalSlider_Duration->value() * 1000);
+    // ui->horizontalSlider_Duration->setValue(ui->horizontalSlider_Duration->value() - 20);
+    // Player->setPosition(ui->horizontalSlider_Duration->value() * 1000);
 }
 
 
 void MainWindow::on_pushButton_Seek_Forward_clicked()
 {
-    ui->horizontalSlider_Duration->setValue(ui->horizontalSlider_Duration->value() + 20);
-    Player->setPosition(ui->horizontalSlider_Duration->value() * 1000);
+    // ui->horizontalSlider_Duration->setValue(ui->horizontalSlider_Duration->value() + 20);
+    // Player->setPosition(ui->horizontalSlider_Duration->value() * 1000);
 }
 
 
@@ -186,14 +208,23 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 
 void MainWindow::PlayVideo(QString FileName)
 {
+    qInfo() << "playing " << FileName;
+    setWindowTitle("ViewLog - " + FileName);
+
+    if (!Video) {
+        delete Video;
+    }
+
     Video = new QVideoWidget();
-    Video->setGeometry(5, 5, ui->groupBox_Video->width() - 10, ui->groupBox_Video->height() - 10);
+    ui->groupBox_Video->setVideo(Video);
+    Video->setGeometry(0, 0, ui->groupBox_Video->width(), ui->groupBox_Video->height());
     Video->setParent(ui->groupBox_Video);
     Player->setVideoOutput(Video);
     Player->setSource(QUrl::fromLocalFile(FileName));
     Video->setVisible(true);
     Video->show();
 
+    IS_Pause = true;
     on_pushButton_Play_Pause_clicked();
 }
 
@@ -283,4 +314,41 @@ void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
 
 void MainWindow::openFileWithDefaultApp(const QString &filePath) {
     QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
+}
+
+
+
+void MainWindow::on_pushButton_Tree_released()
+{
+
+    QPropertyAnimation *Buttonanim = new QPropertyAnimation(ui->pushButton_Tree, "minimumSize", this);
+    Buttonanim->setDuration(200);
+
+    QPropertyAnimation *Treeanim = new QPropertyAnimation(ui->treeWidget, "minimumSize", this);
+    Treeanim->setDuration(200);
+
+    if (!Is_TreeCollapased) {
+        Is_TreeCollapased = true;
+
+
+        Buttonanim->setStartValue(QSize(400, 0));
+        Treeanim->setStartValue(QSize(400, 0));
+        Buttonanim->setEndValue(QSize(0, 0));
+        Treeanim->setEndValue(QSize(0, 0));
+    
+        ui->pushButton_Tree->setIcon(QIcon(":/assets/treeWidget/show-Tree.png"));
+    } else {
+        Is_TreeCollapased = false;
+
+
+        Buttonanim->setStartValue(QSize(26, 0));
+        Treeanim->setStartValue(QSize(0, 0));
+        Buttonanim->setEndValue(QSize(400, 0));
+        Treeanim->setEndValue(QSize(400, 0));
+        
+        ui->pushButton_Tree->setIcon(QIcon(":/assets/treeWidget/collapse-Tree.png"));
+    }
+
+    Buttonanim->start();
+    Treeanim->start();
 }

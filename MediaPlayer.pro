@@ -1,4 +1,4 @@
-QT       += core gui widgets multimedia multimediawidgets
+QT       += core gui widgets multimedia multimediawidgets quickwidgets quickcontrols2
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -11,11 +11,14 @@ CONFIG += c++17
 SOURCES += \
     src/FolderTree.cpp \
     main.cpp \
-    src/mainwindow.cpp
+    src/mainwindow.cpp \
+    src/videogroupbox.cpp
 
 HEADERS += \
     headers/FolderTree.h \
-    headers/mainwindow.h
+    headers/mainwindow.h \
+    headers/videogroupbox.h \
+    videogroupbox.h
 
 FORMS += \
     forms/mainwindow.ui
@@ -27,3 +30,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resources/MediaPlayer.qrc
+
+DISTFILES +=

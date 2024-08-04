@@ -8,5 +8,18 @@
         <file alias="/images/branch-more.png">assets/treeWidget/stylesheet-branch-more.png</file>
         <file alias="/images/branch-open.png">assets/treeWidget/stylesheet-branch-open.png</file>
         <file alias="/images/vline.png">assets/treeWidget/stylesheet-vline.png</file>
+        <file alias="logo.png">logo/ViewLog-logo.png</file>
+        <file>assets/controls/box_icon.png</file>
+        <file>assets/controls/pause_icon.png</file>
+        <file>assets/controls/play_back_icon.png</file>
+        <file>assets/controls/play_forward_icon.png</file>
+        <file>assets/controls/play_icon.png</file>
+        <file>assets/controls/play_skip_back_icon.png</file>
+        <file>assets/controls/play_skip_forward_icon.png</file>
+        <file>assets/controls/volume_high_icon.png</file>
+        <file>assets/controls/volume_mute_icon.png</file>
+        <file>duration_slider.qml</file>
+        <file>assets/treeWidget/collapse-Tree.png</file>
+        <file>assets/treeWidget/show-Tree.png</file>
     </qresource>
 </RCC>
