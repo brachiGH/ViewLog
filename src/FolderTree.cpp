@@ -78,16 +78,16 @@ void FolderTree::uiBuildTree() {
     }
 }
 
-void FolderTree::_uiBuildTree(Node* node, QTreeWidgetItem* parent) {
+void FolderTree::_uiBuildTree(Node* node, CustomTreeWidgetItem* parent) {
     if (!node) return;
 
-    QTreeWidgetItem *item;
+    CustomTreeWidgetItem *item;
     QString fname = QString::fromStdString(node->name);
 
     if (parent) {
-        item = new QTreeWidgetItem(parent, QStringList(QString(fname)));
+        item = new CustomTreeWidgetItem(parent, QStringList(QString(fname)));
     } else {
-        item = new QTreeWidgetItem(MainTree, QStringList(QString(fname)));
+        item = new CustomTreeWidgetItem(MainTree, QStringList(QString(fname)));
     }
 
     QIcon icon;
@@ -182,6 +182,18 @@ void FolderTree::_MergeJsonFromNodes(Node* node) {
     for (Node* child : node->children) {
         _MergeJsonFromNodes(child);
     }
+}
+
+void FolderTree::Reset()
+{
+    QFile file(_TreeJsonFilePath);
+    if (file.remove()) {
+        qDebug() << "File deleted successfully:" << _TreeJsonFilePath;
+    } else {
+        qDebug() << "Failed to delete file:" << _TreeJsonFilePath << "Error:" << file.errorString();
+    }
+
+    MainTree->clear();
 }
 
 

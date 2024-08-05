@@ -25,6 +25,7 @@
 #include <filesystem>
 #include <cctype>
 
+#include "customtreewidgetitem.h"
 
 
 using json = nlohmann::json;
@@ -66,9 +67,11 @@ public:
 
     bool saveTreeWidgetToJson();
 
+    void Reset();
+
     ~FolderTree();
 private:
-    void _uiBuildTree(Node* node, QTreeWidgetItem* parent);
+    void _uiBuildTree(Node* node, CustomTreeWidgetItem* parent);
 
     bool readTreeFile();
 

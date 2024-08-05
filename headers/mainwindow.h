@@ -18,10 +18,8 @@
 #include <Qstring>
 #include <string>
 
-#include <QQuickWidget>
-#include <QQmlContext>
-#include <QQuickItem>
-#include "videogroupbox.h"
+#include "headers/videogroupbox.h"
+#include "headers/customtreewidgetitem.h"
 #include <QPropertyAnimation>
 
 
@@ -58,7 +56,12 @@ const QString _TREE_WIDGET_STYLE_  = "QTreeView::branch:has-siblings:!adjoins-it
         "QTreeView::item:selected {"
         "    background-color: #7a14d4;"
         "}"
-        ;
+        "QTreeView {"
+	    "   border:0.5px solid #2e2d31;"
+        "   background-color: #1e1d21;"
+        "   border-top: none;"
+        "   color:white;"
+        "}";
 
 
 QT_BEGIN_NAMESPACE
@@ -81,7 +84,7 @@ private slots:
     void on_actionOpen_triggered();
 
     void on_slider_duration_Changed(int value);
-    void onDurationSliderPressedChanged(bool pressed);
+    void on_horizontalSlider_Duration_valueChanged(int value);
 
     void on_pushButton_Play_Pause_clicked();
 
@@ -97,6 +100,8 @@ private slots:
 
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
 
+    void PlayVideo(QTreeWidgetItem *item);
+
     void PlayVideo(QString FileName);
 
     void on_treeWidget_itemCollapsed(QTreeWidgetItem *item);
@@ -111,9 +116,11 @@ private slots:
 
     void on_pushButton_Tree_released();
 
+    void on_nextButton_released();
 
-// protected:
-//     void resizeEvent(QResizeEvent *event) override;
+    void on_prevButton_released();
+
+    void resetViewLog();
 
 private:
     Ui::MainWindow *ui;
@@ -122,7 +129,7 @@ private:
     QVideoWidget *Video = nullptr;
     qint64 mDuration;
     QObject *sliderDurationObject;
-    bool durationSliderPressPressed = false;;
+    QTreeWidgetItem* currentItem = nullptr;
     bool IS_Pause = true;
     bool IS_Muted = false;
     bool programmaticChangeDuration = false;
@@ -131,5 +138,11 @@ private:
     FolderTree* foldertree = nullptr;
 
     void updateDuration(qint64 Duration);
+    void buildTree(std::filesystem::path path);
 };
+
+
+QTreeWidgetItem* getNextItem(QTreeWidget* tree, QTreeWidgetItem* currentItem);
+
+QTreeWidgetItem* getPreviousItem(QTreeWidget* tree, QTreeWidgetItem* currentItem);
 #endif // MAINWINDOW_H

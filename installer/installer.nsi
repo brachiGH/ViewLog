@@ -1,31 +1,24 @@
-; Define the output installer file name
-OutFile "Installer.exe"
+OutFile "ViewLogInstaller.exe"
+Icon ".\viewlog\ViewLog-logo.ico"
 
-; Define the default installation directory
+
 InstallDir "$PROGRAMFILES\ViewLog"
-
-; Request administrative privileges for installation
 RequestExecutionLevel admin
 
-; Default section for installation
+
 Section "Install"
 
-  ; Create installation directory
   SetOutPath $INSTDIR
 
   ; Include the files to be installed
   File /r ".\viewlog\*.*"
 
-  ; Create a shortcut on the Start Menu
-  ; Modify the target path if necessary
   CreateDirectory "$SMPROGRAMS\ViewLog"
-  CreateShortCut "$SMPROGRAMS\ViewLog\ViewLog.lnk" "$INSTDIR\viewlog.exe"
+  CreateShortCut "$SMPROGRAMS\ViewLog\ViewLog.lnk" "$INSTDIR\viewlog.exe" "" "$INSTDIR\ViewLog-logo.ico"
 
-  ; Create a shortcut on the desktop
-  ; Modify the target path if necessary
-  CreateShortCut "$DESKTOP\ViewLog.lnk" "$INSTDIR\viewlog.exe"
 
-  ; Write the uninstaller executable
+  CreateShortCut "$DESKTOP\ViewLog.lnk" "$INSTDIR\viewlog.exe" "" "$INSTDIR\ViewLog-logo.ico"
+
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
 SectionEnd

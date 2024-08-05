@@ -18,7 +18,6 @@
         <file>assets/controls/play_skip_forward_icon.png</file>
         <file>assets/controls/volume_high_icon.png</file>
         <file>assets/controls/volume_mute_icon.png</file>
-        <file>duration_slider.qml</file>
         <file>assets/treeWidget/collapse-Tree.png</file>
         <file>assets/treeWidget/show-Tree.png</file>
     </qresource>

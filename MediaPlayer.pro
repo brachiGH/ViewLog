@@ -11,17 +11,22 @@ CONFIG += c++17
 SOURCES += \
     src/FolderTree.cpp \
     main.cpp \
+    src/customtreewidgetitem.cpp \
     src/mainwindow.cpp \
     src/videogroupbox.cpp
 
 HEADERS += \
+    customtreewidgetitem.h \
     headers/FolderTree.h \
+    headers/customtreewidgetitem.h \
     headers/mainwindow.h \
     headers/videogroupbox.h \
     videogroupbox.h
 
 FORMS += \
     forms/mainwindow.ui
+
+ICON = resources/logo/ViewLog-logo.ico
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
