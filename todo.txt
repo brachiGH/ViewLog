@@ -1,0 +1,12 @@
+- add a "QItem curentlyPlaying" attribute and change the "next" and "prev" functions to use it instead of
+        looking for the currently selected item
+- add the proper parent to QItems so they get deleted when open an other folder
+- add auto play next video
+- add "open containing folder" to the contex menu
+- shwitch to qml 
+- change to tinyxml instead of json to reduce mem usage
+- load last volume change on start
+- change the playing media icon to a play button
+- only set as watched if 50% is at least viewed
+- add recently open folders
+- change color of the duration slider
