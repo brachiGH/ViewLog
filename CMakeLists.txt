@@ -1,0 +1,38 @@
+cmake_minimum_required(VERSION 3.18)
+
+project(ViewLogApp LANGUAGES CXX)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+
+find_package(Qt6 COMPONENTS Gui Qml Quick)
+qt_add_executable(ViewLogApp src/main.cpp
+    src/filestreemodel.h src/filestreemodel.cpp)
+
+qt_add_resources(ViewLogApp "configuration"
+    PREFIX "/"
+    FILES
+        qtquickcontrols2.conf
+        assets/images/fullscreen.svg
+        assets/images/speed.svg
+        assets/images/subtitles.svg
+        assets/images/controlvideos.svg
+        assets/images/nextvideo.svg
+        assets/images/volume-3.svg
+        assets/images/seekforward.svg
+        assets/images/seekback.svg
+        assets/images/play.svg
+        assets/images/picture_in_enter_icon.svg
+        assets/images/show-Tree.png
+        assets/images/collapse-Tree.png
+)
+
+target_link_libraries(ViewLogApp PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Quick
+    Qt${QT_VERSION_MAJOR}::Qml
+)
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/qmlmodules)
+

@@ -1,0 +1,680 @@
+/*
+This is a UI file (.ui.qml) that is intended to be edited in Qt Design Studio only.
+It is supposed to be strictly declarative and only uses a subset of QML. If you edit
+this file manually, you might introduce QML code that is not supported by Qt Design Studio.
+Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
+*/
+
+import QtQuick 6.5
+import QtQuick.Controls 6.5
+import ViewLog
+import QtQuick.Layouts 1.0
+import QtMultimedia
+
+
+
+
+Rectangle {
+    id: mainScreen
+    width: Constants.width
+    height: Constants.height
+    visible: true
+
+    property bool showVolumeSlider: false
+    property bool showPlaybackSpeedSlider: false
+    property bool isPictureInPicture: false
+    property bool isFullscreen: false
+    property string elapsedTimeUiText: qsTr("00:00")
+    property string totalDurationUiText: qsTr("00:00")
+    property real lastVolumeValue: 1.0
+    property bool isPaused: videoPlayer.playbackState === MediaPlayer.PlayingState
+    property alias pausePlaybuttonIconsource: pausePlaybutton.icon.source
+    property bool isMouseHovered: false
+    property int filesTreeWidth: 0
+    property string backgroundColor: "black"
+    property string treeBackgroundColor: "#1b1b1b"
+    property string textColor: "#FFFFF0"
+    property string backgroundColorHover: "#0C0C0C"
+    property string buttonsColor: "#FFFFF0"
+    property string currentlyPlayingfilePath: ""
+    property bool showHideDurationMenu: mainScreen.showVolumeSlider || mainScreen.showPlaybackSpeedSlider || showHideVideosControlButton.hovered || subtilesAudioButton.hovered || playbackSpeedButton.hovered
+
+
+    color: mainScreen.backgroundColor
+
+    Timer {
+        id: volumeSliderDelayTimer
+        interval: 250  // 500 milliseconds = 0.5 seconds
+        repeat: false   // Do not repeat, run only once
+        onTriggered: {
+            mainScreen.showVolumeSlider = showHideVolumeButton.hovered || volumeSlider.hovered
+        }
+    }
+
+    Timer {
+        id: speedSliderDelayTimer
+        interval: 250
+        repeat: false
+        onTriggered: {
+            mainScreen.showPlaybackSpeedSlider = playbackSpeedButton.hovered || speedSlider.hovered
+        }
+    }
+
+
+
+    Rectangle {
+        id: treeRectangle
+        color: mainScreen.treeBackgroundColor
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.leftMargin: mainScreen.width - mainScreen.filesTreeWidth
+        anchors.bottomMargin: 0
+        anchors.topMargin: 0
+        anchors.rightMargin: 0
+
+        TreeView {
+                id: treeView
+                anchors.fill: parent
+                anchors.margins: 10
+                clip: true
+
+                selectionModel: ItemSelectionModel {}
+
+                // The model needs to be a QAbstractItemModel
+                model: filesTreeModel
+
+                delegate: Item {
+                    implicitWidth: padding + label.x + label.implicitWidth + padding
+                    implicitHeight: label.implicitHeight * 1.5
+
+                    readonly property real indentation: 20
+                    readonly property real padding: 5
+
+                    // Assigned to by TreeView:
+                    required property TreeView treeView
+                    required property bool isTreeNode
+                    required property bool expanded
+                    required property int hasChildren
+                    required property int depth
+                    required property int row
+                    required property int column
+                    required property bool current
+
+                    // Rotate indicator when expanded by the user
+                    // (requires TreeView to have a selectionModel)
+                    property Animation indicatorAnimation: NumberAnimation {
+                        target: indicator
+                        property: "rotation"
+                        from: expanded ? 0 : 90
+                        to: expanded ? 90 : 0
+                        duration: 100
+                        easing.type: Easing.OutQuart
+                    }
+                    TableView.onPooled: indicatorAnimation.complete()
+                    TableView.onReused: if (current) indicatorAnimation.start()
+//                    onExpandedChanged: indicator.rotation = expanded ? 90 : 0
+
+                    Rectangle {
+                        id: background
+                        anchors.fill: parent
+                        color: row === treeView.currentRow ? palette.highlight : "black"
+                        opacity: (treeView.alternatingRows && row % 2 !== 0) ? 0.3 : 0.1
+                    }
+
+                    Label {
+                        id: indicator
+                        x: padding + (depth * indentation)
+                        anchors.verticalCenter: parent.verticalCenter
+                        visible: isTreeNode && hasChildren
+                        text: "▶"
+
+                        TapHandler {
+                            onSingleTapped: {
+                                let index = treeView.index(row, column)
+                                treeView.selectionModel.setCurrentIndex(index, ItemSelectionModel.NoUpdate)
+                                treeView.toggleExpanded(row)
+                            }
+                        }
+                    }
+
+                    Label {
+                        id: label
+                        x: padding + (isTreeNode ? (depth + 1) * indentation : 0)
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: parent.width - padding - x
+                        clip: true
+                        text: model.display
+                    }
+                }
+            }
+
+    }
+
+    GroupBox {
+        id: videoBox
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        leftPadding: 0
+        rightPadding: 0
+        bottomPadding: 0
+        topPadding: 0
+        title: qsTr("")
+        anchors.rightMargin: mainScreen.filesTreeWidth
+        anchors.leftMargin: 0
+        anchors.bottomMargin: 0
+
+
+        hoverEnabled: true
+
+        background: mainScreen.backgroundColor
+
+
+        Video {
+            id: videoPlayer
+            source: "../assets/images/test1.mkv"
+//            source: "../assets/images/test2.mp4"
+            anchors.fill: parent
+            volume: volumeSlider.value
+            playbackRate: speedSlider.value * 2
+            property int totalDurationMinutes: 0
+            property int totalDurationSeconds: 0
+            property int elapsedMinutes: 0
+            property int elapsedSeconds: 0
+
+            onDurationChanged: {
+                totalDurationMinutes = Math.floor(videoPlayer.duration / 60000)
+                totalDurationSeconds = Math.floor((videoPlayer.duration / 1000)%60)
+                mainScreen.totalDurationUiText = qsTr(
+                                                        (totalDurationMinutes < 10? "0" + totalDurationMinutes : totalDurationMinutes)
+                                                        + ":" + 
+                                                        (totalDurationSeconds < 10? "0" + totalDurationSeconds : totalDurationSeconds)
+                                                    )
+            }
+            onPositionChanged: {
+                elapsedMinutes = Math.floor(videoPlayer.position / 60000);
+                elapsedSeconds = Math.floor(videoPlayer.position / 1000 % 60);
+                mainScreen.elapsedTimeUiText = qsTr(
+                                                        (elapsedMinutes < 10? "0" + elapsedMinutes : elapsedMinutes)
+                                                        + ":" + 
+                                                        (elapsedSeconds < 10? "0" + elapsedSeconds : elapsedSeconds)
+                                                    )
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    if (mainScreen.isPaused) {
+                        videoPlayer.pause()
+                    } else {
+                        videoPlayer.play()
+                    }
+                }
+            }
+
+            DropArea  {
+                id: fileDropArea
+                anchors.fill: parent
+
+                onDropped: {
+                    if (drop.hasUrls) {
+                        currentlyPlayingfilePath = drop.urls[0]
+                        videoPlayer.source = currentlyPlayingfilePath
+                        videoPlayer.play()
+                    }
+                }
+            }
+
+            onPlaying: {
+                console.log((videoPlayer.metaData.stringValue(0)))
+            }
+        }
+
+
+        MediaButton {
+            id: hideShowFilesButton
+            Layout.topMargin: 30
+            visible: mainScreen.isMouseHovered
+            anchors.right: parent.right
+            topPadding: 0
+            bottomPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            icon.source: if (mainScreen.filesTreeWidth != 0) {
+                            "../assets/images/collapse-Tree.png"
+                         } else {
+                            "../assets/images/show-Tree.png"
+                         }
+            anchors.rightMargin: 10
+
+            Connections {
+                target: hideShowFilesButton
+                onClicked: if (mainScreen.filesTreeWidth != 0) {
+                               mainScreen.filesTreeWidth = 0
+                           } else {
+                               mainScreen.filesTreeWidth = 350
+                           }
+
+
+            }
+        }
+
+        Frame {
+            visible: mainScreen.isMouseHovered || !mainScreen.isPaused
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.leftMargin: 0
+            anchors.rightMargin: 0
+            anchors.bottomMargin: 0
+
+
+
+
+            background: Rectangle {
+                    border.width: 0  // No border
+                    gradient: Gradient {
+                        GradientStop { position: 1.0; color: "#cc000000" }
+                        GradientStop { position: 0.7; color: "transparent" }
+                        GradientStop { position: 0.0; color: "transparent" }
+                    }
+               }
+
+
+            ColumnLayout {
+                anchors.leftMargin: 15
+                anchors.rightMargin: 15
+                anchors.bottomMargin: 15
+                anchors.fill: parent
+
+
+                Button {
+                    id: pictureInPictureButton
+                    text: qsTr("")
+                    Layout.bottomMargin: 250
+                    icon.source: if (mainScreen.isPictureInPicture) {
+                                    "../assets/images/picture_in_exit_icon.svg"
+                                } else {
+                                    "../assets/images/picture_in_enter_icon.svg"
+                                }
+                    icon.color: mainScreen.buttonsColor
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    flat: true
+
+                    Connections {
+                        target: pictureInPictureButton
+                        onClicked: mainScreen.isPictureInPicture = !mainScreen.isPictureInPicture
+                    }
+                }
+
+                Rectangle {
+                    id: moreControlsBox
+                    Layout.fillWidth: true
+
+
+                    Slider {
+                        id: volumeSlider
+                        hoverEnabled: true
+                        visible: mainScreen.showVolumeSlider
+                        anchors.left: parent.left
+                        anchors.bottom: parent.bottom
+                        clip: false
+                        bottomPadding: 5
+                        rightPadding: 20
+                        anchors.leftMargin: showHideVolumeButton.x + (showHideVolumeButton.width/2) - (volumeSlider.width/2)
+                        anchors.bottomMargin: 5
+                        leftPadding: 20
+                        topPadding: 0
+                        orientation: Qt.Vertical
+                        rotation: 0
+                        value: 1
+
+                        width: 200
+                        height: 200
+
+                        Connections {
+                            target: volumeSlider
+                            onHoveredChanged: mainScreen.showVolumeSlider = showHideVolumeButton.hovered || volumeSlider.hovered
+                        }
+
+
+                        onPressedChanged: mainScreen.lastVolumeValue = (volumeSlider.value > 0.1)? volumeSlider.value : 0.1
+
+                    }
+
+                    GroupBox {
+                        id: nextMediaTitleBox
+                        width: 200
+                        height: 200
+                        visible: playNextVideoButton.hovered
+                        anchors.left: parent.left
+                        anchors.bottom: parent.bottom
+                        anchors.leftMargin: playNextVideoButton.x + playNextVideoButton.width/2 - nextMediaTitleBox.width/2
+                        anchors.bottomMargin: 0
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        title: qsTr("Group Box")
+                    }
+
+
+                    GroupBox {
+                        id: mediaControlBox
+                        width: 200
+                        height: 200
+                        visible: showHideVideosControlButton.hovered
+                        anchors.left: parent.left
+                        anchors.bottom: parent.bottom
+                        anchors.leftMargin: showHideVideosControlButton.x +showHideVideosControlButton.width/2 - mediaControlBox.width/2
+                        anchors.bottomMargin: 0
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        title: qsTr("Group Box")
+                    }
+
+
+                    ListModel {
+                            id: personModel
+                            ListElement { name: "Alice"; age: 25 }
+                            ListElement { name: "Bob"; age: 30 }
+                            ListElement { name: "Charlie"; age: 35 }
+                            ListElement { name: "Diana"; age: 40 }
+                            ListElement { name: "Alice"; age: 25 }
+                        }
+                    ListModel {
+                            id: personModel2
+                            ListElement { name: "Alice"; age: 25 }
+                        }
+
+
+                    GroupBox {
+                        id: subtitlesAndAudioBox
+                        width: 400
+                        height: 350
+                        visible: subtilesAudioButton.hovered
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.rightMargin: 25
+                        anchors.bottomMargin: 0
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        title: qsTr("")
+
+
+
+                        Row {
+                            anchors.fill: parent
+                            spacing: 10
+
+
+                            ListView {
+                                id: audioTrackList
+                                width: parent.width/2
+                                height: parent.height
+                                model: personModel
+
+                                onContentYChanged: subtitleList.contentY = contentY
+
+                                delegate: Item {
+                                    width: parent.width
+                                    height: 40
+
+                                    Row {
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        Text {
+                                            text: qsTr("strin")
+                                            color: "red"
+                                            font.pixelSize: 16
+                                        }
+                                    }
+                                }
+                            }
+                            ListView {
+                                id: subtitleList
+                                width: parent.width/2
+                                height: parent.height
+                                model: personModel2
+
+                                onContentYChanged: audioTrackList.contentY = contentY
+
+                                delegate: Item {
+                                    width: parent.width
+                                    height: 40
+
+                                    Row {
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        Text {
+                                            text: qsTr("strin2videoPlayer.metaData")
+                                            color: "red"
+                                            font.pixelSize: 16
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+
+
+                    ColumnLayout {
+                        id: speedSliderBox
+                        x: 854
+                        y: -200
+                        visible: mainScreen.showPlaybackSpeedSlider
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.rightMargin: 25
+                        anchors.bottomMargin: 0
+
+                        Rectangle {
+                                    anchors.fill: parent
+                                    color: "white"  // Background color for the text
+                                    radius: 5
+                                    z: -1  // Ensures the background is behind the text
+                                }
+
+
+                        Text {
+                            id: textSpeed
+                            text: qsTr("Speed:" + (speedSlider.value * 2).toFixed(2))
+                            font.pixelSize: 12
+                            Layout.leftMargin: 5
+                            Layout.rightMargin: 5
+                            color: "black"
+                        }
+
+                        Slider {
+                            id: speedSlider
+                            hoverEnabled: true
+                            value: 0.5
+                            clip: false
+                            anchors.bottom: parent.bottom
+                            Layout.leftMargin: 5
+                            Layout.rightMargin: 5
+
+                            Connections {
+                                target: speedSlider
+                                onHoveredChanged: mainScreen.showPlaybackSpeedSlider = playbackSpeedButton.hovered || speedSlider.hovered
+                            }
+                        }
+
+                    }
+
+                }
+
+
+                RowLayout {
+                    id: durationMenu
+
+                    visible: if (mainScreen.showHideDurationMenu) {
+                                false
+                            } else {
+                                true
+                            }
+
+
+                    Text {
+                        id: elapsedTime
+                        text: mainScreen.elapsedTimeUiText
+                        color: mainScreen.textColor
+                        font.pixelSize: 17
+                    }
+
+                    Slider {
+                        id: durantionSlider
+                        Layout.fillWidth: true
+                        value: videoPlayer.position / videoPlayer.duration
+                        onPressedChanged: {
+                            videoPlayer.position = durantionSlider.visualPosition * videoPlayer.duration
+                        }
+                    }
+
+
+                    Text {
+                        id: totalDuration
+                        text: mainScreen.totalDurationUiText
+                        color: mainScreen.textColor
+                        font.pixelSize: 17
+                    }
+
+                }
+
+                RowLayout {
+                    Layout.bottomMargin: 10
+
+                    MediaButton {
+                        id: pausePlaybutton
+
+                        icon.source: if (mainScreen.isPaused) {
+                                        "../assets/images/pause.svg"
+                                    } else {
+                                        "../assets/images/play.svg"
+                                    }
+
+
+                        Connections {
+                            target: pausePlaybutton
+                            onClicked: {
+                                if (mainScreen.isPaused) {
+                                    videoPlayer.pause()
+                                } else {
+                                    videoPlayer.play()
+                                }
+                            }
+
+                        }
+                    }
+
+                    MediaButton {
+                        id: seekBackButton
+                        icon.source: "../assets/images/seekback.svg"
+                        onClicked: {
+                            videoPlayer.position -= videoPlayer.position < 10? videoPlayer.position : 10000
+                        }
+                    }
+
+                    MediaButton {
+                        id: seekForwardButton
+                        icon.source: "../assets/images/seekforward.svg"
+                        onClicked: {
+                            videoPlayer.position += videoPlayer.position > videoPlayer.duration - 10? videoPlayer.duration - videoPlayer.position : 10000
+                        }
+                    }
+
+                    MediaButton {
+                        id: showHideVolumeButton
+
+                        icon.source: if (volumeSlider.value <= 1 && volumeSlider.value >= 0.6) {
+                                        "../assets/images/volume-3.svg"
+                                    } else if (volumeSlider.value < 0.6 && volumeSlider.value >= 0.3) {
+                                        "../assets/images/volume-2.svg"
+                                    } else if (volumeSlider.value < 0.3 && volumeSlider.value > 0) {
+                                        "../assets/images/volume-1.svg"
+                                    } else {
+                                        "../assets/images/volume-muted.svg"
+                                    }
+
+                        Connections {
+                            target: showHideVolumeButton
+                            onHoveredChanged: {
+                                    mainScreen.showVolumeSlider = true;
+                                    volumeSliderDelayTimer.start()
+                                }
+                        }
+
+                        onClicked: {
+                            console.log(mainScreen.lastVolumeValue)
+                            volumeSlider.value = (volumeSlider.value > 0)? 0 : mainScreen.lastVolumeValue
+                        }
+                    }
+                    
+                    Text {
+                        id: currentPlayingMediaTitle
+                        text: (videoPlayer.metaData.stringValue(0) === "")? videoPlayer.source: videoPlayer.metaData.stringValue(0)
+                        font.pixelSize: 18
+                        horizontalAlignment: Text.AlignHCenter
+                        color: mainScreen.textColor
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    }
+
+                    MediaButton {
+                        id: playNextVideoButton
+                        icon.source: "../assets/images/nextvideo.svg"
+                    }
+
+                    MediaButton {
+                        id: showHideVideosControlButton
+                        icon.source: "../assets/images/controlvideos.svg"
+                    }
+
+                    MediaButton {
+                        id: subtilesAudioButton
+                        icon.source: "../assets/images/subtitles.svg"
+                    }
+
+                    MediaButton {
+                        id: playbackSpeedButton
+                        icon.source: "../assets/images/speed.svg"
+
+                        Connections {
+                            target: playbackSpeedButton
+                            onHoveredChanged: {
+                                    mainScreen.showPlaybackSpeedSlider = true;
+                                    speedSliderDelayTimer.start()
+                                }
+                        }
+                    }
+
+                    MediaButton {
+                        id: fullscreenButton
+                        icon.source: if (!mainScreen.isFullscreen) {
+                                        "../assets/images/fullscreen.svg"
+                                    } else {
+                                        "../assets/images/exitfullscreen.svg"
+                                    }
+
+                        Connections {
+                            target: fullscreenButton
+                            onClicked: mainScreen.isFullscreen = !mainScreen.isFullscreen
+                        }
+                    }
+
+                }
+
+
+            }
+
+        }
+
+        Connections {
+            target: videoBox
+            onHoveredChanged: mainScreen.isMouseHovered = videoBox.hovered
+
+        }
+    }
+
+
+}
