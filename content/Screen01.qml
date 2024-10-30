@@ -285,8 +285,28 @@ Rectangle {
                            } else {
                                mainScreen.filesTreeWidth = 350
                            }
+            }
+        }
 
 
+        // pictureInPicture Button
+        MediaButton {
+            id: pictureInPictureButton
+            anchors.right: parent.right
+            y: mainScreen.width/4
+            text: qsTr("")
+            icon.source: if (mainScreen.isPictureInPicture) {
+                            "../assets/images/picture_in_exit_icon.svg"
+                        } else {
+                            "../assets/images/picture_in_enter_icon.svg"
+                        }
+            icon.color: mainScreen.buttonsColor
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            flat: true
+
+            Connections {
+                target: pictureInPictureButton
+                onClicked: mainScreen.isPictureInPicture = !mainScreen.isPictureInPicture
             }
         }
 
@@ -318,25 +338,6 @@ Rectangle {
                 anchors.bottomMargin: 15
                 anchors.fill: parent
 
-                // pictureInPicture Button
-                Button {
-                    id: pictureInPictureButton
-                    text: qsTr("")
-                    Layout.bottomMargin: 250
-                    icon.source: if (mainScreen.isPictureInPicture) {
-                                    "../assets/images/picture_in_exit_icon.svg"
-                                } else {
-                                    "../assets/images/picture_in_enter_icon.svg"
-                                }
-                    icon.color: mainScreen.buttonsColor
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    flat: true
-
-                    Connections {
-                        target: pictureInPictureButton
-                        onClicked: mainScreen.isPictureInPicture = !mainScreen.isPictureInPicture
-                    }
-                }
 
                 // on hover options (volume slider, speed slider, subtitles and audio track)
                 Rectangle {
