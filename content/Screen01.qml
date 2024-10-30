@@ -22,10 +22,11 @@ Rectangle {
 
     property bool showVolumeSlider: false
     property bool showPlaybackSpeedSlider: false
+    property bool showSubtitlesAndAudioSelector: false
     property bool isPictureInPicture: false
     property bool isFullscreen: false
-    property string elapsedTimeUiText: qsTr("00:00")
-    property string totalDurationUiText: qsTr("00:00")
+    property string elapsedTimeUiText: qsTr("00:00:00")
+    property string totalDurationUiText: qsTr("00:00:00")
     property real lastVolumeValue: 1.0
     property bool isPaused: videoPlayer.playbackState === MediaPlayer.PlayingState
     property alias pausePlaybuttonIconsource: pausePlaybutton.icon.source
@@ -37,7 +38,7 @@ Rectangle {
     property string backgroundColorHover: "#0C0C0C"
     property string buttonsColor: "#FFFFF0"
     property string currentlyPlayingfilePath: ""
-    property bool showHideDurationMenu: mainScreen.showVolumeSlider || mainScreen.showPlaybackSpeedSlider || showHideVideosControlButton.hovered || subtilesAudioButton.hovered || playbackSpeedButton.hovered
+    property bool showHideDurationMenu: mainScreen.showVolumeSlider || mainScreen.showSubtitlesAndAudioSelector || mainScreen.showPlaybackSpeedSlider || showHideVideosControlButton.hovered || subtilesAudioButton.hovered || playbackSpeedButton.hovered
 
 
     color: mainScreen.backgroundColor
@@ -59,8 +60,6 @@ Rectangle {
             mainScreen.showPlaybackSpeedSlider = playbackSpeedButton.hovered || speedSlider.hovered
         }
     }
-
-
 
     Rectangle {
         id: treeRectangle
@@ -114,7 +113,7 @@ Rectangle {
                     }
                     TableView.onPooled: indicatorAnimation.complete()
                     TableView.onReused: if (current) indicatorAnimation.start()
-//                    onExpandedChanged: indicator.rotation = expanded ? 90 : 0
+                    // onExpandedChanged: indicator.rotation = expanded ? 90 : 0
 
                     Rectangle {
                         id: background
@@ -173,15 +172,19 @@ Rectangle {
         background: mainScreen.backgroundColor
 
 
-        Video {
+        MediaPlayer {
             id: videoPlayer
             source: "../assets/images/test1.mkv"
-//            source: "../assets/images/test2.mp4"
-            anchors.fill: parent
-            volume: volumeSlider.value
+            audioOutput: AudioOutput {
+                volume: volumeSlider.value
+            }
+            videoOutput: videoPlayerOutput
             playbackRate: speedSlider.value * 2
+
+            property int totalDurationHours: 0
             property int totalDurationMinutes: 0
             property int totalDurationSeconds: 0
+            property int elapsedHours: 0
             property int elapsedMinutes: 0
             property int elapsedSeconds: 0
 
@@ -204,36 +207,61 @@ Rectangle {
                                                     )
             }
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    if (mainScreen.isPaused) {
-                        videoPlayer.pause()
-                    } else {
-                        videoPlayer.play()
+
+            onMetaDataChanged:  {
+                if (mediaStatus === MediaPlayer.LoadedMedia) {
+                    console.log("Media loaded")
+                    console.log("Has audio tracks:", audioTracks !== undefined)
+                    console.log("Number of audio tracks:", audioTracks ? audioTracks.length : 0)
+                    if (audioTracks) {
+                        for (let i = 0; i < audioTracks.length; i++) {
+                            console.log(`Track ${i}:`, audioTracks[i].language, audioTracks[i].title)
+                        }
                     }
                 }
             }
+        }
 
-            DropArea  {
-                id: fileDropArea
-                anchors.fill: parent
+        VideoOutput {
+            id: videoPlayerOutput
+            anchors.fill: parent
+            fillMode: VideoOutput.PreserveAspectFit
+        }
 
-                onDropped: {
-                    if (drop.hasUrls) {
-                        currentlyPlayingfilePath = drop.urls[0]
-                        videoPlayer.source = currentlyPlayingfilePath
-                        videoPlayer.play()
-                    }
+
+        // droping a video file and playing it immediately (does not verife if the file is media file)
+        DropArea  {
+            id: fileDropArea
+            anchors.fill: parent
+
+            onDropped: {
+                if (drop.hasUrls) {
+                    currentlyPlayingfilePath = drop.urls[0]
+                    videoPlayer.source = currentlyPlayingfilePath
+                    videoPlayer.play()
                 }
-            }
-
-            onPlaying: {
-                console.log((videoPlayer.metaData.stringValue(0)))
             }
         }
 
 
+
+        // playing and pausing the video by clicking in the middle of the screen
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                if (mainScreen.isPaused) {
+                    videoPlayer.pause()
+                } else {
+                    videoPlayer.play()
+                }
+
+                // hide the subtitles and audio track selector if open
+                mainScreen.showSubtitlesAndAudioSelector = false
+            }
+        }
+
+
+        // show and hide the file tree view
         MediaButton {
             id: hideShowFilesButton
             Layout.topMargin: 30
@@ -290,7 +318,7 @@ Rectangle {
                 anchors.bottomMargin: 15
                 anchors.fill: parent
 
-
+                // pictureInPicture Button
                 Button {
                     id: pictureInPictureButton
                     text: qsTr("")
@@ -310,11 +338,12 @@ Rectangle {
                     }
                 }
 
+                // on hover options (volume slider, speed slider, subtitles and audio track)
                 Rectangle {
                     id: moreControlsBox
                     Layout.fillWidth: true
 
-
+                    // volume slider
                     Slider {
                         id: volumeSlider
                         hoverEnabled: true
@@ -337,7 +366,7 @@ Rectangle {
 
                         Connections {
                             target: volumeSlider
-                            onHoveredChanged: mainScreen.showVolumeSlider = showHideVolumeButton.hovered || volumeSlider.hovered
+                            onHoveredChanged: mainScreen.showVolumeSlider = subtilesAudioButton.hovered || volumeSlider.hovered
                         }
 
 
@@ -345,6 +374,7 @@ Rectangle {
 
                     }
 
+                    // next media button
                     GroupBox {
                         id: nextMediaTitleBox
                         width: 200
@@ -358,7 +388,7 @@ Rectangle {
                         title: qsTr("Group Box")
                     }
 
-
+                    // list the available playable media
                     GroupBox {
                         id: mediaControlBox
                         width: 200
@@ -372,92 +402,102 @@ Rectangle {
                         title: qsTr("Group Box")
                     }
 
-
-                    ListModel {
-                            id: personModel
-                            ListElement { name: "Alice"; age: 25 }
-                            ListElement { name: "Bob"; age: 30 }
-                            ListElement { name: "Charlie"; age: 35 }
-                            ListElement { name: "Diana"; age: 40 }
-                            ListElement { name: "Alice"; age: 25 }
-                        }
-                    ListModel {
-                            id: personModel2
-                            ListElement { name: "Alice"; age: 25 }
-                        }
-
-
-                    GroupBox {
-                        id: subtitlesAndAudioBox
-                        width: 400
+                    // subtitles and audio tracks selector
+                    ColumnLayout {
+                        id: subtitlesAndAudioSelector
+                        width: 420
                         height: 350
-                        visible: subtilesAudioButton.hovered
+                        visible: mainScreen.showSubtitlesAndAudioSelector
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         anchors.rightMargin: 25
                         anchors.bottomMargin: 0
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        title: qsTr("")
+                        // Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
+                        // background
+                        Rectangle {
+                           anchors.fill: parent
+                           color: "white"  // Background color for the text
+                            radius: 5
+                            z: -1  // Ensures the background is behind the text
+                        }
 
-
+                        // spliting the box into 2
                         Row {
                             anchors.fill: parent
+                            height: parent.height
+                            width: childrenRect.width
                             spacing: 10
+                            padding: 10
 
+                            // Audio tracks section
+                            GroupBox {
+                                title: "Audio Tracks"
+                                width: parent.width/2 - 15
+                                height: 330
 
-                            ListView {
-                                id: audioTrackList
-                                width: parent.width/2
-                                height: parent.height
-                                model: personModel
-
-                                onContentYChanged: subtitleList.contentY = contentY
-
-                                delegate: Item {
+                                ScrollView {
+                                    height: parent.height
                                     width: parent.width
-                                    height: 40
+                                    
+                                    Column {
+                                        spacing: 5
+                                        Repeater {
+                                            model: videoPlayer.audioTracks
+                                            delegate: RadioButton {
+                                                text: modelData.title || `${modelData.stringValue(0)} (${modelData.stringValue(6)})`
+                                                checked: videoPlayer.activeAudioTrack === index
+                                                onClicked: {
+                                                    videoPlayer.activeAudioTrack = index
+                                                    mainScreen.showSubtitlesAndAudioSelector = false
+                                                }
 
-                                    Row {
-                                        anchors.verticalCenter: parent.verticalCenter
-
-                                        Text {
-                                            text: qsTr("strin")
-                                            color: "red"
-                                            font.pixelSize: 16
+                                            }
                                         }
+
+
                                     }
                                 }
                             }
-                            ListView {
-                                id: subtitleList
-                                width: parent.width/2
-                                height: parent.height
-                                model: personModel2
 
-                                onContentYChanged: audioTrackList.contentY = contentY
+                            // Subtitle tracks section
+                            GroupBox {
+                                title: "Subtitle Tracks"
+                                width: parent.width/2 - 15
+                                height: 330
 
-                                delegate: Item {
+                                ScrollView {
+                                    height: parent.height
                                     width: parent.width
-                                    height: 40
-
-                                    Row {
-                                        anchors.verticalCenter: parent.verticalCenter
-
-                                        Text {
-                                            text: qsTr("strin2videoPlayer.metaData")
-                                            color: "red"
-                                            font.pixelSize: 16
+    
+                                    Column {
+                                        spacing: 5
+                                        RadioButton {
+                                            text: "No subtitles"
+                                            checked: true
+                                            onClicked: videoPlayer.subtitleTrack = null
+                                        }
+                                        Repeater {
+                                            model: videoPlayer.subtitleTracks
+                                            delegate: RadioButton {
+                                                text: modelData.title || `${modelData.stringValue(0)} (${modelData.stringValue(6)})`
+                                                checked: videoPlayer.subtitleTrack === index
+                                                onClicked: {
+                                                    videoPlayer.subtitleTrack = index
+                                                    mainScreen.showSubtitlesAndAudioSelector = false
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+
+
+
                     }
 
-
-
-
+                    // playback speed slider
                     ColumnLayout {
                         id: speedSliderBox
                         x: 854
@@ -504,7 +544,7 @@ Rectangle {
 
                 }
 
-
+                // playback information (durationMenu e.i. elapsedTime, durantionSlider, totalDuration)
                 RowLayout {
                     id: durationMenu
 
@@ -541,6 +581,7 @@ Rectangle {
 
                 }
 
+                // Media Controls 
                 RowLayout {
                     Layout.bottomMargin: 10
 
@@ -620,19 +661,26 @@ Rectangle {
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     }
 
+                    // next media
                     MediaButton {
                         id: playNextVideoButton
                         icon.source: "../assets/images/nextvideo.svg"
                     }
 
+                    // showHideVideosControlButton
                     MediaButton {
                         id: showHideVideosControlButton
                         icon.source: "../assets/images/controlvideos.svg"
                     }
 
+                    // subtilesAudioButton
                     MediaButton {
                         id: subtilesAudioButton
                         icon.source: "../assets/images/subtitles.svg"
+
+                        onClicked: {
+                            mainScreen.showSubtitlesAndAudioSelector = !mainScreen.showSubtitlesAndAudioSelector
+                        }
                     }
 
                     MediaButton {
