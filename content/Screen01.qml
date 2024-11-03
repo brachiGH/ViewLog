@@ -284,7 +284,7 @@ Rectangle {
                     border.width: 0  // No border
                     gradient: Gradient {
                         GradientStop { position: 1.0; color: "#cc000000" }
-                        GradientStop { position: 0.7; color: "transparent" }
+                        GradientStop { position: 0.3; color: "transparent" }
                         GradientStop { position: 0.0; color: "transparent" }
                     }
                }
@@ -586,21 +586,24 @@ Rectangle {
                         }
 
                         onClicked: {
-                            console.log(mainScreen.lastVolumeValue)
                             volumeSlider.value = (volumeSlider.value > 0)? 0 : mainScreen.lastVolumeValue
                         }
                     }
                     
 
                     // media title 
+
                     Text {
                         id: currentPlayingMediaTitle
-                        text: (videoPlayer.metaData.stringValue(0) === "")? videoPlayer.source: videoPlayer.metaData.stringValue(0)
                         font.pixelSize: 18
                         horizontalAlignment: Text.AlignHCenter
                         color: mainScreen.textColor
+                        text: (videoPlayer.metaData.stringValue(0) === "")? videoPlayer.source: videoPlayer.metaData.stringValue(0)
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                        maximumLineCount: 1
+                        width: 200
+                        elide: Text.ElideLeft
                     }
 
                     // next media
