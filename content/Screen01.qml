@@ -25,6 +25,7 @@ Rectangle {
     property bool showSubtitlesAndAudioSelector: false
     property bool isPictureInPicture: false
     property bool isFullscreen: false
+    property bool hideFilesTree: true
     property string elapsedTimeUiText: qsTr("00:00:00")
     property string totalDurationUiText: qsTr("00:00:00")
     property real lastVolumeValue: 1.0
@@ -73,81 +74,12 @@ Rectangle {
         anchors.topMargin: 0
         anchors.rightMargin: 0
 
-        TreeView {
-                id: treeView
-                anchors.fill: parent
-                anchors.margins: 10
-                clip: true
+        FolderTreeView {
+            id: foldertreeview
+            rootFolder: "file:///"
+            anchors.fill: parent
+        }
 
-                selectionModel: ItemSelectionModel {}
-
-                // The model needs to be a QAbstractItemModel
-                model: filesTreeModel
-
-                delegate: Item {
-                    implicitWidth: padding + label.x + label.implicitWidth + padding
-                    implicitHeight: label.implicitHeight * 1.5
-
-                    readonly property real indentation: 20
-                    readonly property real padding: 5
-
-                    // Assigned to by TreeView:
-                    required property TreeView treeView
-                    required property bool isTreeNode
-                    required property bool expanded
-                    required property int hasChildren
-                    required property int depth
-                    required property int row
-                    required property int column
-                    required property bool current
-
-                    // Rotate indicator when expanded by the user
-                    // (requires TreeView to have a selectionModel)
-                    property Animation indicatorAnimation: NumberAnimation {
-                        target: indicator
-                        property: "rotation"
-                        from: expanded ? 0 : 90
-                        to: expanded ? 90 : 0
-                        duration: 100
-                        easing.type: Easing.OutQuart
-                    }
-                    TableView.onPooled: indicatorAnimation.complete()
-                    TableView.onReused: if (current) indicatorAnimation.start()
-                    // onExpandedChanged: indicator.rotation = expanded ? 90 : 0
-
-                    Rectangle {
-                        id: background
-                        anchors.fill: parent
-                        color: row === treeView.currentRow ? palette.highlight : "black"
-                        opacity: (treeView.alternatingRows && row % 2 !== 0) ? 0.3 : 0.1
-                    }
-
-                    Label {
-                        id: indicator
-                        x: padding + (depth * indentation)
-                        anchors.verticalCenter: parent.verticalCenter
-                        visible: isTreeNode && hasChildren
-                        text: "▶"
-
-                        TapHandler {
-                            onSingleTapped: {
-                                let index = treeView.index(row, column)
-                                treeView.selectionModel.setCurrentIndex(index, ItemSelectionModel.NoUpdate)
-                                treeView.toggleExpanded(row)
-                            }
-                        }
-                    }
-
-                    Label {
-                        id: label
-                        x: padding + (isTreeNode ? (depth + 1) * indentation : 0)
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: parent.width - padding - x
-                        clip: true
-                        text: model.display
-                    }
-                }
-            }
 
     }
 
@@ -237,9 +169,35 @@ Rectangle {
             onDropped: {
                 if (drop.hasUrls) {
                     currentlyPlayingfilePath = drop.urls[0]
-                    videoPlayer.source = currentlyPlayingfilePath
-                    videoPlayer.play()
+                    var folderModel = Qt.createQmlObject(`
+                        import Qt.labs.folderlistmodel 2.15;
+                        FolderListModel {
+                            folder: "${currentlyPlayingfilePath}"
+                        }`,
+                        parent,
+                        "dynamicFolder"
+                    );
+                    if (folderModel.isFolder) {
+                        console.log(currentlyPlayingfilePath)
+                        foldertreeview.rootFolder = currentlyPlayingfilePath
+                    } else {
+                        videoPlayer.source = currentlyPlayingfilePath
+                        videoPlayer.play()
+                    }
+
                 }
+
+                // for (var i = 0; i < drag.hasUrls; i++) {
+                //     var fileUrl = drag.urls[i];
+                //     var fileInfo = Qt.createQmlObject("import Qt.labs.folderlistmodel 2.15; FileInfo { }", parent, "dynamicFileInfo");
+                //     fileInfo.url = fileUrl;
+                    
+                //     if (fileInfo.isDir) {
+                //         console.log("Dropped item is a folder:", fileUrl);
+                //     } else {
+                //         console.log("Dropped item is a file:", fileUrl);
+                //     }
+                // }
             }
         }
 
@@ -264,8 +222,8 @@ Rectangle {
         // show and hide the file tree view
         MediaButton {
             id: hideShowFilesButton
-            Layout.topMargin: 30
             visible: mainScreen.isMouseHovered
+            Layout.topMargin: 30
             anchors.right: parent.right
             topPadding: 0
             bottomPadding: 0
@@ -546,43 +504,24 @@ Rectangle {
                 }
 
                 // playback information (durationMenu e.i. elapsedTime, durantionSlider, totalDuration)
-                RowLayout {
+                DurationMenu {
                     id: durationMenu
+                    Layout.fillWidth: true
+                    showHideDurationMenu: mainScreen.showHideDurationMenu
+                    elapsedTimeUiText: mainScreen.elapsedTimeUiText
+                    totalDurationUiText: mainScreen.totalDurationUiText
+                    textColor: mainScreen.textColor
+                    position: videoPlayer.position
+                    duration: videoPlayer.duration
 
-                    visible: if (mainScreen.showHideDurationMenu) {
-                                false
-                            } else {
-                                true
-                            }
-
-
-                    Text {
-                        id: elapsedTime
-                        text: mainScreen.elapsedTimeUiText
-                        color: mainScreen.textColor
-                        font.pixelSize: 17
+                    // Use the function instead of a signal
+                    onPositionChanged: {
+                        videoPlayer.position = position
                     }
-
-                    Slider {
-                        id: durantionSlider
-                        Layout.fillWidth: true
-                        value: videoPlayer.position / videoPlayer.duration
-                        onPressedChanged: {
-                            videoPlayer.position = durantionSlider.visualPosition * videoPlayer.duration
-                        }
-                    }
-
-
-                    Text {
-                        id: totalDuration
-                        text: mainScreen.totalDurationUiText
-                        color: mainScreen.textColor
-                        font.pixelSize: 17
-                    }
-
                 }
 
-                // Media Controls 
+
+                // Media Controls
                 RowLayout {
                     Layout.bottomMargin: 10
 
@@ -652,6 +591,8 @@ Rectangle {
                         }
                     }
                     
+
+                    // media title 
                     Text {
                         id: currentPlayingMediaTitle
                         text: (videoPlayer.metaData.stringValue(0) === "")? videoPlayer.source: videoPlayer.metaData.stringValue(0)
@@ -712,8 +653,7 @@ Rectangle {
                     }
 
                 }
-
-
+            
             }
 
         }
