@@ -13,18 +13,30 @@ qt_add_resources(ViewLogApp "configuration"
     PREFIX "/"
     FILES
         qtquickcontrols2.conf
+        assets/images/bar_right_icon.svg
+        assets/images/collapse-Tree.png
+        assets/images/controlvideos.svg
+        assets/images/down_icon.svg
+        assets/images/exitfullscreen.svg
+        assets/images/file.svg
+        assets/images/folder.svg
         assets/images/fullscreen.svg
+        assets/images/next-icon.svg
+        assets/images/nextvideo.svg
+        assets/images/pause.svg
+        assets/images/picture_in_enter_icon.svg
+        assets/images/picture_in_exit_icon.svg
+        assets/images/play.svg
+        assets/images/seekback.svg
+        assets/images/seekforward.svg
+        assets/images/show-Tree.png
         assets/images/speed.svg
         assets/images/subtitles.svg
-        assets/images/controlvideos.svg
-        assets/images/nextvideo.svg
+        assets/images/volume-1.svg
+        assets/images/volume-2.svg
         assets/images/volume-3.svg
-        assets/images/seekforward.svg
-        assets/images/seekback.svg
-        assets/images/play.svg
-        assets/images/picture_in_enter_icon.svg
-        assets/images/show-Tree.png
-        assets/images/collapse-Tree.png
+        assets/images/volume-muted.svg
+
 )
 
 target_link_libraries(ViewLogApp PRIVATE

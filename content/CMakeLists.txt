@@ -9,6 +9,11 @@ qt6_add_qml_module(content
     VERSION 1.0
     QML_FILES
         App.qml
+        DurationMenu.qml
+        FolderTreeView.qml
+        MediaButton.qml
+        MediaControls.qml
         Screen01.qml
+        timer.qml
 
 )
