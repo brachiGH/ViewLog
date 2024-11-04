@@ -1,4 +1,5 @@
 /build
+<<<<<<< HEAD
 /installer/ViewLog
 /installer/ViewLogInstaller.exe
 MediaPlayer.pro.user
@@ -7,3 +8,9 @@ ui_mainwindow.h
 .vscode
 Makefile
 .qmake.stash
+=======
+assets/images/test2.mp4
+assets/images/test1.mkv
+assets/images/test3.mkv
+/deployed_qml
+>>>>>>> ViewLog2
