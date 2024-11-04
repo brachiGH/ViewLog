@@ -313,7 +313,6 @@ Rectangle {
                     border.width: 0  // No border
                     gradient: Gradient {
                         GradientStop { position: 1.0; color: "#cc000000" }
-                        GradientStop { position: 0.3; color: "transparent" }
                         GradientStop { position: 0.0; color: "transparent" }
                     }
                }
@@ -632,7 +631,7 @@ Rectangle {
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                         maximumLineCount: 1
                         width: 200
-                        elide: Text.ElideLeft
+                        elide: Text.ElideRight
                     }
 
                     // next media
