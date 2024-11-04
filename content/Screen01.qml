@@ -80,7 +80,17 @@ Rectangle {
             anchors.fill: parent
         }
 
+        DropArea  {
+            id: folderDropArea
+            anchors.fill: parent
 
+            onDropped: {
+                if (drop.hasUrls) {
+                    currentlyPlayingfilePath = drop.urls[0]
+                    foldertreeview.rootFolder = currentlyPlayingfilePath
+                }
+            }
+        }
     }
 
     GroupBox {
@@ -106,7 +116,7 @@ Rectangle {
 
         MediaPlayer {
             id: videoPlayer
-            source: "../assets/images/test1.mkv"
+            source: ""
             audioOutput: AudioOutput {
                 volume: volumeSlider.value
             }
@@ -160,7 +170,6 @@ Rectangle {
             fillMode: VideoOutput.PreserveAspectFit
         }
 
-
         // droping a video file and playing it immediately (does not verife if the file is media file)
         DropArea  {
             id: fileDropArea
@@ -169,22 +178,9 @@ Rectangle {
             onDropped: {
                 if (drop.hasUrls) {
                     currentlyPlayingfilePath = drop.urls[0]
-                    var folderModel = Qt.createQmlObject(`
-                        import Qt.labs.folderlistmodel 2.15;
-                        FolderListModel {
-                            folder: "${currentlyPlayingfilePath}"
-                        }`,
-                        parent,
-                        "dynamicFolder"
-                    );
-                    if (folderModel.isFolder) {
-                        console.log(currentlyPlayingfilePath)
-                        foldertreeview.rootFolder = currentlyPlayingfilePath
-                    } else {
-                        videoPlayer.source = currentlyPlayingfilePath
-                        videoPlayer.play()
-                    }
-
+                    videoPlayer.source = currentlyPlayingfilePath
+                    videoPlayer.play()
+                    videoPlayer.position = 0
                 }
 
                 // for (var i = 0; i < drag.hasUrls; i++) {
@@ -264,7 +260,11 @@ Rectangle {
 
             Connections {
                 target: pictureInPictureButton
-                onClicked: mainScreen.isPictureInPicture = !mainScreen.isPictureInPicture
+                onClicked: {
+                    mainScreen.isPictureInPicture = !mainScreen.isPictureInPicture
+
+                
+                }
             }
         }
 
@@ -598,7 +598,7 @@ Rectangle {
                         font.pixelSize: 18
                         horizontalAlignment: Text.AlignHCenter
                         color: mainScreen.textColor
-                        text: (videoPlayer.metaData.stringValue(0) === "")? videoPlayer.source: videoPlayer.metaData.stringValue(0)
+                        text: (videoPlayer.metaData.stringValue(0) === "")? String(videoPlayer.source).split('/').pop(): videoPlayer.metaData.stringValue(0)
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                         maximumLineCount: 1
