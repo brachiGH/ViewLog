@@ -202,15 +202,35 @@ Rectangle {
         // playing and pausing the video by clicking in the middle of the screen
         MouseArea {
             anchors.fill: parent
-            onClicked: {
-                if (mainScreen.isPaused) {
-                    videoPlayer.pause()
-                } else {
-                    videoPlayer.play()
-                }
+            property point lastMousePos
+            property real dx
+            property real dy
 
-                // hide the subtitles and audio track selector if open
-                mainScreen.showSubtitlesAndAudioSelector = false
+            onClicked: {
+                if (dx == 0 && dy == 0) {
+                    if (mainScreen.isPaused) {
+                        videoPlayer.pause()
+                    } else {
+                        videoPlayer.play()
+                    }
+
+                    // hide the subtitles and audio track selector if open
+                    mainScreen.showSubtitlesAndAudioSelector = false
+                }
+            }
+            
+            onPressed: {
+                lastMousePos = Qt.point(mouseX, mouseY)
+            }
+            
+            onMouseXChanged: {
+                dx = mouseX - lastMousePos.x
+                mainWindow.x += dx
+            }
+            
+            onMouseYChanged: {
+                dy = mouseY - lastMousePos.y
+                mainWindow.y += dy
             }
         }
 
@@ -264,6 +284,15 @@ Rectangle {
                     mainScreen.isPictureInPicture = !mainScreen.isPictureInPicture
 
                 
+                    if (mainScreen.isPictureInPicture) {
+                        mainWindow.flags =  Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+                        mainWindow.width = 1334
+                        mainWindow.height = 750
+                        mainWindow.x = 100
+                        mainWindow.y = 100
+                    } else {
+                        mainWindow.flags =  mainWindow.flags & ~Qt.WindowStaysOnTopHint & ~Qt.FramelessWindowHint
+                    }
                 }
             }
         }
