@@ -2,30 +2,6 @@
 
 ViewLog is a video tracking app built with Qt6. ViewLog allows you to keep track of all the videos you've watched within the app. Whether you’re managing a growing collection or just keeping tabs on your latest binge-watching session, ViewLog ensures you never lose track of your video journey.
 
-<<<<<<< HEAD
-![alt text](https://i.imgur.com/O5r2t4c.png)
-![alt text](https://i.imgur.com/leqy43y.png)
-
-# Build
-
-```console
-rm -rf build
-mkdir build
-cd build
-qmake ../MediaPlayer.pro
-make
-```
-
-if did notwork try
-
-```console
-rm -rf build
-mkdir build
-cd build
-"/PATH/TO/Qt/6.x/gcc_64/bin/qmake" ../MediaPlayer.pro
-make
-```
-=======
 ![alt text](https://i.imgur.com/bLT1J6n.png)
 ![alt text](https://i.imgur.com/sbs83Yt.png)
 
@@ -81,7 +57,6 @@ make
    build-<project>-<kit>-Release/
    ```
 
->>>>>>> ViewLog2
 
 ### if you are using Windows
 
@@ -100,8 +75,5 @@ windeployqt MediaPlayer.exe
 > NOTE: if you get a "libstdc++-6.dll" not found or "libgcc_s_seh-1.dll" not found
 >
 > you can copy the missing dlls from "PATH/TO/Qt/tools/mingw*****/bin"
-<<<<<<< HEAD
-=======
 
 [![Badge License]][License]
->>>>>>> ViewLog2
