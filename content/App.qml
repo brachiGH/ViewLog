@@ -5,21 +5,22 @@ import QtQuick 6.5
 import ViewLog
 import QtQuick.Controls 6.5
 import QtQuick.Layouts 1.0
+import QtQuick.Window 2.15
 
 Window {
-    id:mainWindow
+    id: mainWindow
     width: 1334
     height: 750
 
     // Set the minimum and maximum size to control resizing limits
-    minimumWidth: 200
-    minimumHeight: 150
+    minimumWidth: 350
+    minimumHeight: 230
 
-    // Property to store the initial mouse position
-    property var resizeStartMouseX
-    property var resizeStartMouseY
-    property var resizeStartWidth
-    property var resizeStartHeight
+    property real resizeStartWidth: 0
+    property real resizeStartHeight: 0
+    property real targetWidth: 0
+    property real targetHeight: 0
+
 
     visible: true
     visibility: if (mainScreen.isFullscreen) {
@@ -40,36 +41,25 @@ Window {
 
     // Corners and edges for resizing
     MouseArea {
-        anchors.left: parent.left
-        width: 10
-        height: parent.height
-        cursorShape: Qt.SizeHorCursor
-        enabled: mainScreen.isPictureInPicture
-
-        onPressed: {
-            mainWindow.resizeStartMouseX = mouse.x
-            mainWindow.resizeStartWidth = mainWindow.width
-        }
-
-        onMouseXChanged: {
-            mainWindow.width = mainWindow.resizeStartWidth + (mouse.x - mainWindow.resizeStartMouseX)
-        }
-    }
-
-    MouseArea {
         anchors.right: parent.right
         width: 10
         height: parent.height
         cursorShape: Qt.SizeHorCursor
         enabled: mainScreen.isPictureInPicture
 
+        property point lastMousePos
+
         onPressed: {
-            mainWindow.resizeStartMouseX = mouse.x
-            mainWindow.resizeStartWidth = mainWindow.width
+            lastMousePos = Qt.point(mouseX, mouseY)
         }
 
-        onMouseXChanged: {
-            mainWindow.width = mainWindow.resizeStartWidth + (mouse.x - mainWindow.resizeStartMouseX)
+        onPositionChanged: {
+            var deltaX = mouseX - lastMousePos.x
+
+            // Apply size constraints
+            var newWidth = Math.max(mainWindow.width + deltaX, mainWindow.minimumWidth)
+
+            mainWindow.width = newWidth
         }
     }
 
@@ -80,18 +70,25 @@ Window {
         cursorShape: Qt.SizeVerCursor
         enabled: mainScreen.isPictureInPicture
 
+        property point lastMousePos
+
         onPressed: {
-            mainWindow.resizeStartMouseY = mouse.y
-            mainWindow.resizeStartHeight = mainWindow.height
+            lastMousePos = Qt.point(mouseX, mouseY)
         }
 
-        onMouseYChanged: {
-            mainWindow.height = mainWindow.resizeStartHeight + (mouse.y - mainWindow.resizeStartMouseY)
+        onPositionChanged: {
+            var deltaY = mouseY - lastMousePos.y
+
+            // Apply size constraints
+            var newHeight = Math.max(mainWindow.height + deltaY, mainWindow.minimumHeight)
+
+            mainWindow.height = newHeight
         }
     }
 
     // Corner for resizing (bottom-right)
     MouseArea {
+        id:mouseArea
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         width: 10
@@ -99,23 +96,39 @@ Window {
         cursorShape: Qt.SizeFDiagCursor
         enabled: mainScreen.isPictureInPicture
 
+        property point lastMousePos
+
         onPressed: {
-            mainWindow.resizeStartMouseX = mouse.x
-            mainWindow.resizeStartMouseY = mouse.y
-            mainWindow.resizeStartWidth = mainWindow.width
-            mainWindow.resizeStartHeight = mainWindow.height
+            lastMousePos = Qt.point(mouseX, mouseY)
         }
 
-        onMouseXChanged: {
-            mainWindow.width = mainWindow.resizeStartWidth + (mouse.x - mainWindow.resizeStartMouseX)
-        }
+        onPositionChanged: {
+            var deltaX = mouseX - lastMousePos.x
+            var deltaY = mouseY - lastMousePos.y
 
-        onMouseYChanged: {
-            mainWindow.height = mainWindow.resizeStartHeight + (mouse.y - mainWindow.resizeStartMouseY)
+            // Apply size constraints
+            var newWidth = Math.max(mainWindow.width + deltaX, mainWindow.minimumWidth)
+            var newHeight = Math.max(mainWindow.height + deltaY, mainWindow.minimumHeight)
+
+            mainWindow.width = newWidth
+            mainWindow.height = newHeight
         }
     }
 
 
-    
+
+    Behavior on width {
+        NumberAnimation {
+            duration: 50
+            easing.type: Easing.Linear
+        }
+    }
+
+    Behavior on height {
+        NumberAnimation {
+            duration: 50
+            easing.type: Easing.Linear
+        }
+    }
 }
 
