@@ -36,7 +36,12 @@ qt_add_resources(ViewLogApp "configuration"
         assets/images/volume-2.svg
         assets/images/volume-3.svg
         assets/images/volume-muted.svg
-
+        assets/treeWidget/stylesheet-vline.png
+        assets/treeWidget/stylesheet-branch-open.png
+        assets/treeWidget/stylesheet-branch-more.png
+        assets/treeWidget/stylesheet-branch-end.png
+        assets/treeWidget/stylesheet-branch-closed.
+        
 )
 
 target_link_libraries(ViewLogApp PRIVATE
