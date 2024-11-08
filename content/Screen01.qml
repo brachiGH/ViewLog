@@ -108,61 +108,69 @@ Rectangle {
         anchors.leftMargin: 0
         anchors.bottomMargin: 0
 
-
         hoverEnabled: true
 
         background: mainScreen.backgroundColor
 
 
-        MediaPlayer {
+        // MediaPlayer {
+        //     id: videoPlayer
+        //     source: ""
+        //     audioOutput: AudioOutput {
+        //         volume: volumeSlider.value
+        //     }
+        //     videoOutput: videoPlayerOutput
+        //     playbackRate: speedSlider.value * 2
+
+        //     property int totalDurationHours: 0
+        //     property int totalDurationMinutes: 0
+        //     property int totalDurationSeconds: 0
+        //     property int elapsedHours: 0
+        //     property int elapsedMinutes: 0
+        //     property int elapsedSeconds: 0
+
+        //     onDurationChanged: {
+        //         totalDurationMinutes = Math.floor(videoPlayer.duration / 60000)
+        //         totalDurationSeconds = Math.floor((videoPlayer.duration / 1000)%60)
+        //         mainScreen.totalDurationUiText = qsTr(
+        //                                                 (totalDurationMinutes < 10? "0" + totalDurationMinutes : totalDurationMinutes)
+        //                                                 + ":" + 
+        //                                                 (totalDurationSeconds < 10? "0" + totalDurationSeconds : totalDurationSeconds)
+        //                                             )
+        //     }
+        //     onPositionChanged: {
+        //         elapsedMinutes = Math.floor(videoPlayer.position / 60000);
+        //         elapsedSeconds = Math.floor(videoPlayer.position / 1000 % 60);
+        //         mainScreen.elapsedTimeUiText = qsTr(
+        //                                                 (elapsedMinutes < 10? "0" + elapsedMinutes : elapsedMinutes)
+        //                                                 + ":" + 
+        //                                                 (elapsedSeconds < 10? "0" + elapsedSeconds : elapsedSeconds)
+        //                                             )
+        //     }
+
+
+        //     onMetaDataChanged:  {
+        //         if (mediaStatus === MediaPlayer.LoadedMedia) {
+        //             console.log("Media loaded")
+        //             console.log("Has audio tracks:", audioTracks !== undefined)
+        //             console.log("Number of audio tracks:", audioTracks ? audioTracks.length : 0)
+        //             if (audioTracks) {
+        //                 for (let i = 0; i < audioTracks.length; i++) {
+        //                     console.log(`Track ${i}:`, audioTracks[i].language, audioTracks[i].title)
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
+        CustomMediaPlayer {
             id: videoPlayer
-            source: ""
-            audioOutput: AudioOutput {
-                volume: volumeSlider.value
-            }
             videoOutput: videoPlayerOutput
-            playbackRate: speedSlider.value * 2
 
-            property int totalDurationHours: 0
-            property int totalDurationMinutes: 0
-            property int totalDurationSeconds: 0
-            property int elapsedHours: 0
-            property int elapsedMinutes: 0
-            property int elapsedSeconds: 0
-
-            onDurationChanged: {
-                totalDurationMinutes = Math.floor(videoPlayer.duration / 60000)
-                totalDurationSeconds = Math.floor((videoPlayer.duration / 1000)%60)
-                mainScreen.totalDurationUiText = qsTr(
-                                                        (totalDurationMinutes < 10? "0" + totalDurationMinutes : totalDurationMinutes)
-                                                        + ":" + 
-                                                        (totalDurationSeconds < 10? "0" + totalDurationSeconds : totalDurationSeconds)
-                                                    )
-            }
-            onPositionChanged: {
-                elapsedMinutes = Math.floor(videoPlayer.position / 60000);
-                elapsedSeconds = Math.floor(videoPlayer.position / 1000 % 60);
-                mainScreen.elapsedTimeUiText = qsTr(
-                                                        (elapsedMinutes < 10? "0" + elapsedMinutes : elapsedMinutes)
-                                                        + ":" + 
-                                                        (elapsedSeconds < 10? "0" + elapsedSeconds : elapsedSeconds)
-                                                    )
-            }
-
-
-            onMetaDataChanged:  {
-                if (mediaStatus === MediaPlayer.LoadedMedia) {
-                    console.log("Media loaded")
-                    console.log("Has audio tracks:", audioTracks !== undefined)
-                    console.log("Number of audio tracks:", audioTracks ? audioTracks.length : 0)
-                    if (audioTracks) {
-                        for (let i = 0; i < audioTracks.length; i++) {
-                            console.log(`Track ${i}:`, audioTracks[i].language, audioTracks[i].title)
-                        }
-                    }
-                }
-            }
+            volumeSlider: volumeSlider.value
+            speedSlider: speedSlider.value
         }
+
 
         VideoOutput {
             id: videoPlayerOutput
