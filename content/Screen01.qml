@@ -39,7 +39,7 @@ Rectangle {
     property string backgroundColorHover: "#0C0C0C"
     property string buttonsColor: "#FFFFF0"
     property string currentlyPlayingfilePath: ""
-    property bool showHideDurationMenu: mainScreen.showVolumeSlider || mainScreen.showSubtitlesAndAudioSelector || mainScreen.showPlaybackSpeedSlider || showHideVideosControlButton.hovered || subtilesAudioButton.hovered || playbackSpeedButton.hovered
+    property bool showHideDurationMenu: mainScreen.showVolumeSlider || mainScreen.showSubtitlesAndAudioSelector || mainScreen.showPlaybackSpeedSlider || subtilesAudioButton.hovered || playbackSpeedButton.hovered
 
 
     color: mainScreen.backgroundColor
@@ -112,56 +112,6 @@ Rectangle {
 
         background: mainScreen.backgroundColor
 
-
-        // MediaPlayer {
-        //     id: videoPlayer
-        //     source: ""
-        //     audioOutput: AudioOutput {
-        //         volume: volumeSlider.value
-        //     }
-        //     videoOutput: videoPlayerOutput
-        //     playbackRate: speedSlider.value * 2
-
-        //     property int totalDurationHours: 0
-        //     property int totalDurationMinutes: 0
-        //     property int totalDurationSeconds: 0
-        //     property int elapsedHours: 0
-        //     property int elapsedMinutes: 0
-        //     property int elapsedSeconds: 0
-
-        //     onDurationChanged: {
-        //         totalDurationMinutes = Math.floor(videoPlayer.duration / 60000)
-        //         totalDurationSeconds = Math.floor((videoPlayer.duration / 1000)%60)
-        //         mainScreen.totalDurationUiText = qsTr(
-        //                                                 (totalDurationMinutes < 10? "0" + totalDurationMinutes : totalDurationMinutes)
-        //                                                 + ":" + 
-        //                                                 (totalDurationSeconds < 10? "0" + totalDurationSeconds : totalDurationSeconds)
-        //                                             )
-        //     }
-        //     onPositionChanged: {
-        //         elapsedMinutes = Math.floor(videoPlayer.position / 60000);
-        //         elapsedSeconds = Math.floor(videoPlayer.position / 1000 % 60);
-        //         mainScreen.elapsedTimeUiText = qsTr(
-        //                                                 (elapsedMinutes < 10? "0" + elapsedMinutes : elapsedMinutes)
-        //                                                 + ":" + 
-        //                                                 (elapsedSeconds < 10? "0" + elapsedSeconds : elapsedSeconds)
-        //                                             )
-        //     }
-
-
-        //     onMetaDataChanged:  {
-        //         if (mediaStatus === MediaPlayer.LoadedMedia) {
-        //             console.log("Media loaded")
-        //             console.log("Has audio tracks:", audioTracks !== undefined)
-        //             console.log("Number of audio tracks:", audioTracks ? audioTracks.length : 0)
-        //             if (audioTracks) {
-        //                 for (let i = 0; i < audioTracks.length; i++) {
-        //                     console.log(`Track ${i}:`, audioTracks[i].language, audioTracks[i].title)
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
 
         CustomMediaPlayer {
             id: videoPlayer
@@ -378,20 +328,6 @@ Rectangle {
                         anchors.left: parent.left
                         anchors.bottom: parent.bottom
                         anchors.leftMargin: playNextVideoButton.x + playNextVideoButton.width/2 - nextMediaTitleBox.width/2
-                        anchors.bottomMargin: 0
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        title: qsTr("Group Box")
-                    }
-
-                    // list the available playable media
-                    GroupBox {
-                        id: mediaControlBox
-                        width: 200
-                        height: 200
-                        visible: showHideVideosControlButton.hovered
-                        anchors.left: parent.left
-                        anchors.bottom: parent.bottom
-                        anchors.leftMargin: showHideVideosControlButton.x +showHideVideosControlButton.width/2 - mediaControlBox.width/2
                         anchors.bottomMargin: 0
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         title: qsTr("Group Box")
@@ -646,12 +582,6 @@ Rectangle {
                     MediaButton {
                         id: playNextVideoButton
                         icon.source: "../assets/images/nextvideo.svg"
-                    }
-
-                    // showHideVideosControlButton
-                    MediaButton {
-                        id: showHideVideosControlButton
-                        icon.source: "../assets/images/controlvideos.svg"
                     }
 
                     // subtilesAudioButton
