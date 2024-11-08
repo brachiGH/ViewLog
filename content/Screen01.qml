@@ -33,6 +33,7 @@ Rectangle {
     property alias pausePlaybuttonIconsource: pausePlaybutton.icon.source
     property bool isMouseHovered: false
     property int filesTreeWidth: 0
+    property int defaultfileTreeWidth: 350
     property string backgroundColor: "black"
     property string treeBackgroundColor: "#1b1b1b"
     property string textColor: "#FFFFF0"
@@ -40,7 +41,8 @@ Rectangle {
     property string buttonsColor: "#FFFFF0"
     property string currentlyPlayingfilePath: ""
     property bool showHideDurationMenu: mainScreen.showVolumeSlider || mainScreen.showSubtitlesAndAudioSelector || mainScreen.showPlaybackSpeedSlider || subtilesAudioButton.hovered || playbackSpeedButton.hovered
-
+    property bool hidebuttons: mainWindow.width > 500
+    property bool hideFiles: mainWindow.width > 1000
 
     color: mainScreen.backgroundColor
 
@@ -73,6 +75,7 @@ Rectangle {
         anchors.bottomMargin: 0
         anchors.topMargin: 0
         anchors.rightMargin: 0
+        visible: hideFiles
 
         FolderTreeView {
             id: foldertreeview
@@ -197,7 +200,7 @@ Rectangle {
         // show and hide the file tree view
         MediaButton {
             id: hideShowFilesButton
-            visible: mainScreen.isMouseHovered
+            visible: mainScreen.isMouseHovered && hideFiles
             Layout.topMargin: 30
             anchors.right: parent.right
             topPadding: 0
@@ -213,10 +216,10 @@ Rectangle {
 
             Connections {
                 target: hideShowFilesButton
-                onClicked: if (mainScreen.filesTreeWidth != 0) {
+                onClicked: if (mainScreen.filesTreeWidth != 0 && hideFiles) {
                                mainScreen.filesTreeWidth = 0
                            } else {
-                               mainScreen.filesTreeWidth = 350
+                               mainScreen.filesTreeWidth = defaultfileTreeWidth
                            }
             }
         }
@@ -524,6 +527,7 @@ Rectangle {
                     MediaButton {
                         id: seekBackButton
                         icon.source: "../assets/images/seekback.svg"
+                        visible: hidebuttons
                         onClicked: {
                             videoPlayer.position -= videoPlayer.position < 10? videoPlayer.position : 10000
                         }
@@ -532,6 +536,7 @@ Rectangle {
                     MediaButton {
                         id: seekForwardButton
                         icon.source: "../assets/images/seekforward.svg"
+                        visible: hidebuttons
                         onClicked: {
                             videoPlayer.position += videoPlayer.position > videoPlayer.duration - 10? videoPlayer.duration - videoPlayer.position : 10000
                         }
@@ -589,7 +594,7 @@ Rectangle {
                     MediaButton {
                         id: subtilesAudioButton
                         icon.source: "../assets/images/subtitles.svg"
-
+                        visible: mainWindow.width > 470
                         onClicked: {
                             mainScreen.showSubtitlesAndAudioSelector = !mainScreen.showSubtitlesAndAudioSelector
                         }
@@ -623,7 +628,7 @@ Rectangle {
                     }
 
                 }
-            
+
             }
 
         }

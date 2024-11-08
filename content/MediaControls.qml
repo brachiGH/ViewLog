@@ -20,6 +20,7 @@ Item {
     property color textColor: "white"
     property var videoPlayer: null
     property alias volumeSliderValue: volumeSlider.value
+    property real mainWindowWidth: 720
 
     // Signals
     signal volumeSliderVisibilityChanged(bool visible)
@@ -49,6 +50,7 @@ Item {
         MediaButton {
             id: seekBackButton
             icon.source: "../assets/images/seekback.svg"
+            visible: mainWindowWidth > 470
             onClicked: {
                 videoPlayer.position -= videoPlayer.position < 10 ?
                     videoPlayer.position : 10000
@@ -58,6 +60,7 @@ Item {
         MediaButton {
             id: seekForwardButton
             icon.source: "../assets/images/seekforward.svg"
+            visible: mainWindowWidth > 470
             onClicked: {
                 videoPlayer.position += videoPlayer.position > videoPlayer.duration - 10 ?
                     videoPlayer.duration - videoPlayer.position : 10000
