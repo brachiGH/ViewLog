@@ -77,6 +77,7 @@ Rectangle {
         FolderTreeView {
             id: foldertreeview
             rootFolder: "file:///"
+            backgroundColor: mainScreen.treeBackgroundColor
             anchors.fill: parent
         }
 

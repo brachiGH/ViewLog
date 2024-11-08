@@ -8,8 +8,8 @@ Item {
     width: 400
     height: 600
     property string iconColor: "#FFFFF0"
-
     property string rootFolder: "file:///"
+    property string backgroundColor: "#FFFFF0"
 
     Component {
         id: folderDelegate
@@ -19,7 +19,6 @@ Item {
             id: delegateItem
             width: treeView.width
 
-
             // Calculate total height based on content
             height: itemRow.height + (isExpanded ? subFolderView.height : 0)
 
@@ -28,40 +27,40 @@ Item {
             property bool isFolder: fileIsDir
 
             // Main item row
+            
             RowLayout {
                 id: itemRow
                 width: parent.width
-                height: 30
-                spacing: 5
+                // height: 20
 
                 // Indentation based on depth
                 Item {
-                    width: 20 * model.depth
+                    width: 10 * model.depth
                     height: 1
                 }
 
                 // Expand/Collapse icon for folders
                 IconImage  {
                     visible: isFolder
-                    source: !delegateItem.isExpanded ? "../assets/images/next-icon.svg" : "../assets/images/down_icon.svg"
-                    sourceSize.width: 13
-                    sourceSize.height: 13
+                    source: !delegateItem.isExpanded ? "../assets/treeWidget/stylesheet-branch-closed.png" : "../assets/treeWidget/stylesheet-branch-open.png"
+                    sourceSize.width: 10
+                    sourceSize.height: 10
                     color: root.iconColor
                 }
 
                 IconImage  {
                     visible: !isFolder
-                    source: "../assets/images/bar_right_icon.svg"
-                    sourceSize.width: 13
-                    sourceSize.height: 13
+                    source: "../assets/treeWidget/stylesheet-vline.png"
+                    sourceSize.width: 10
+                    sourceSize.height: 10
                     color: root.iconColor
                 }
 
                 // File/Folder icon
                 Image {
                     source: isFolder ? "../assets/images/folder.svg" : "../assets/images/file.svg"
-                    sourceSize.width: 23
-                    sourceSize.height: 23
+                    sourceSize.width: 13
+                    sourceSize.height: 13
                 }
 
                 // File/Folder name
@@ -88,6 +87,7 @@ Item {
 
             }
 
+            
             // Subfolder contents
             ListView {
                 id: subFolderView
@@ -119,6 +119,7 @@ Item {
                 }
             }
         }
+
     }
 
     ScrollView {
