@@ -15,5 +15,6 @@ qt6_add_qml_module(content
         MediaControls.qml
         Screen01.qml
         timer.qml
+        CustomMediaPlayer.qml
 
 )
