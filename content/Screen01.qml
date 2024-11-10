@@ -129,7 +129,12 @@ Rectangle {
         VideoOutput {
             id: videoPlayerOutput
             anchors.fill: parent
+            // Enable smooth scaling
             fillMode: VideoOutput.PreserveAspectFit
+            
+            // Enable hardware acceleration for rendering
+            layer.enabled: true
+            layer.smooth: true
         }
 
         // droping a video file and playing it immediately (does not verife if the file is media file)
@@ -138,24 +143,9 @@ Rectangle {
             anchors.fill: parent
 
             onDropped: {
-                if (drop.hasUrls) {
-                    currentlyPlayingfilePath = drop.urls[0]
-                    videoPlayer.source = currentlyPlayingfilePath
-                    videoPlayer.play()
-                    videoPlayer.position = 0
-                }
-
-                // for (var i = 0; i < drag.hasUrls; i++) {
-                //     var fileUrl = drag.urls[i];
-                //     var fileInfo = Qt.createQmlObject("import Qt.labs.folderlistmodel 2.15; FileInfo { }", parent, "dynamicFileInfo");
-                //     fileInfo.url = fileUrl;
-                    
-                //     if (fileInfo.isDir) {
-                //         console.log("Dropped item is a folder:", fileUrl);
-                //     } else {
-                //         console.log("Dropped item is a file:", fileUrl);
-                //     }
-                // }
+                videoPlayer.stop()
+                videoPlayer.source = drop.urls[0]
+                videoPlayer.play()
             }
         }
 
@@ -487,13 +477,6 @@ Rectangle {
                     elapsedTimeUiText: mainScreen.elapsedTimeUiText
                     totalDurationUiText: mainScreen.totalDurationUiText
                     textColor: mainScreen.textColor
-                    position: videoPlayer.position
-                    duration: videoPlayer.duration
-
-                    // Use the function instead of a signal
-                    onPositionChanged: {
-                        videoPlayer.position = position
-                    }
                 }
 
 

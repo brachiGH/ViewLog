@@ -11,13 +11,7 @@ Item {
     property string elapsedTimeUiText: ""
     property string totalDurationUiText: ""
     property color textColor: "white"
-    property real position: 0
-    property real duration: 1
 
-    // Changed from signal to function to avoid duplicate signal error
-    function updatePosition(newPosition) {
-        position = newPosition
-    }
 
     RowLayout {
         id: durationLayout
@@ -34,10 +28,12 @@ Item {
         Slider {
             id: durationSlider
             Layout.fillWidth: true
-            value: root.position / Math.max(root.duration, 1) // Prevent division by zero
-            onMoved: {
-                root.updatePosition(durationSlider.visualPosition * root.duration)
+            value: videoPlayer.position / Math.max(videoPlayer.duration, 1) // Prevent division by zero
+            
+            onPressedChanged: {
+                videoPlayer.position = durationSlider.visualPosition * videoPlayer.duration
             }
+            
         }
 
         Text {

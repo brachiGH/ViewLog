@@ -1,8 +1,7 @@
-
 import QtQuick 6.5
 import QtQuick.Controls 6.5
-import QtQuick.Layouts 1.0
-import QtMultimedia
+import QtQuick.Layouts 6.5
+import QtMultimedia 6.5
 
 MediaPlayer {
     id: videoPlayer
@@ -13,6 +12,21 @@ MediaPlayer {
     audioOutput: AudioOutput {
         volume: volumeSlider
     }
+    
+    // Handle errors
+    onErrorChanged: {
+        if (error !== MediaPlayer.NoError) {
+            console.error("Media Player Error:", errorString)
+        }
+    }
+
+    // Handle playback state changes
+    onPlaybackStateChanged: {
+        if (playbackState === MediaPlayer.StoppedState) {
+            source = "" // Clear source when stopped
+        }
+    }
+
     playbackRate: speedSlider * 2
 
     property int totalDurationHours: 0
@@ -33,6 +47,7 @@ MediaPlayer {
                                                 (totalDurationSeconds < 10? "0" + totalDurationSeconds : totalDurationSeconds)
                                             )
     }
+
     onPositionChanged: {
         elapsedHours = Math.floor((videoPlayer.position / (6000)*60)%60)
         elapsedMinutes = Math.floor(videoPlayer.position / 60000);

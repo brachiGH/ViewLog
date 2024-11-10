@@ -1,3 +1,4 @@
 - add functionality to verify if droped file is playable 
 - the "next" and "prev" media buttons should only be shown when their is avable media to play
+- upgrade to mpv-qt
 - add subtitles
