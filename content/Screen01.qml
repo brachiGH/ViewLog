@@ -125,7 +125,6 @@ Rectangle {
             speedSlider: speedSlider.value
         }
 
-
         VideoOutput {
             id: videoPlayerOutput
             anchors.fill: parent
@@ -276,7 +275,6 @@ Rectangle {
                 anchors.bottomMargin: 15
                 anchors.fill: parent
 
-
                 // on hover options (volume slider, speed slider, subtitles and audio track)
                 Rectangle {
                     id: moreControlsBox
@@ -400,16 +398,17 @@ Rectangle {
                                         RadioButton {
                                             text: "No subtitles"
                                             checked: true
-                                            onClicked: videoPlayer.subtitleTrack = null
+                                            onClicked: videoPlayer.activeSubtitleTrack = -1
                                         }
                                         Repeater {
                                             model: videoPlayer.subtitleTracks
                                             delegate: RadioButton {
                                                 text: modelData.title || `${modelData.stringValue(0)} (${modelData.stringValue(6)})`
-                                                checked: videoPlayer.subtitleTrack === index
+                                                checked: videoPlayer.activeSubtitleTrack === index
                                                 onClicked: {
-                                                    videoPlayer.subtitleTrack = index
+                                                    videoPlayer.activeSubtitleTrack = index
                                                     mainScreen.showSubtitlesAndAudioSelector = false
+                                                    console.log(videoPlayer.subtitleTracks[videoPlayer.activeSubtitleTrack])
                                                 }
                                             }
                                         }
@@ -553,19 +552,18 @@ Rectangle {
                     
 
                     // media title 
-
-                    Text {
-                        id: currentPlayingMediaTitle
-                        font.pixelSize: 18
-                        horizontalAlignment: Text.AlignHCenter
-                        color: mainScreen.textColor
-                        text: (videoPlayer.metaData.stringValue(0) === "")? String(videoPlayer.source).split('/').pop(): videoPlayer.metaData.stringValue(0)
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        maximumLineCount: 1
-                        width: 200
-                        elide: Text.ElideRight
-                    }
+                   Text {
+                       id: currentPlayingMediaTitle
+                       font.pixelSize: 18
+                       horizontalAlignment: Text.AlignHCenter
+                       color: mainScreen.textColor
+                       text: (videoPlayer.metaData.stringValue(0) === "")? String(videoPlayer.source).split('/').pop(): videoPlayer.metaData.stringValue(0)
+                       Layout.fillWidth: true
+                       Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                       maximumLineCount: 1
+                       width: 200
+                       elide: Text.ElideRight
+                   }
 
                     // next media
                     MediaButton {

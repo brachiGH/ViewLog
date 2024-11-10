@@ -8,7 +8,7 @@ MediaPlayer {
     property real volumeSlider: 0
     property real speedSlider: 0
     
-    source: ""
+    source: "../assets/test.mkv"
     audioOutput: AudioOutput {
         volume: volumeSlider
     }
@@ -26,6 +26,16 @@ MediaPlayer {
             source = "" // Clear source when stopped
         }
     }
+
+    // Handle subtitle tracks
+    onSubtitleTracksChanged: {
+        console.log("videoPlayer.activeSubtitleTrack")
+
+        console.log(videoPlayer.activeSubtitleTrack)
+    }
+
+    
+
 
     playbackRate: speedSlider * 2
 
