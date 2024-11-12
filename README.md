@@ -11,12 +11,12 @@ ViewLog is a video tracking app built with Qt6. ViewLog allows you to keep track
 1. **Export from Qt Design Studio**
    ```bash
    # In Qt Design Studio
-   File -> Export -> Export Project to Qt Creator
+   File -> Export Project -> Generate Cmake files
    ```
 
 2. **Open in Qt Creator**
    ```bash
-   # Open the exported .pro or CMakeLists.txt file
+   # Open the exported CMakeLists.txt file
    ```
 
 3. **Configure Build Settings**
