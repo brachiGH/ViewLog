@@ -218,8 +218,8 @@ Rectangle {
         MediaButton {
             id: pictureInPictureButton
             anchors.right: parent.right
+            visible: mainScreen.isMouseHovered
             y: mainScreen.width/4
-            text: qsTr("")
             icon.source: if (mainScreen.isPictureInPicture) {
                             "../assets/images/picture_in_exit_icon.svg"
                         } else {
@@ -601,7 +601,7 @@ Rectangle {
                                     } else {
                                         "../assets/images/exitfullscreen.svg"
                                     }
-
+                        visible: !mainScreen.isPictureInPicture
                         Connections {
                             target: fullscreenButton
                             onClicked: mainScreen.isFullscreen = !mainScreen.isFullscreen

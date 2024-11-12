@@ -6,8 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 COMPONENTS Gui Qml Quick)
-qt_add_executable(ViewLogApp src/main.cpp
-    src/filestreemodel.h src/filestreemodel.cpp)
+qt_add_executable(ViewLogApp src/main.cpp)
 
 qt_add_resources(ViewLogApp "configuration"
     PREFIX "/"
@@ -40,8 +39,7 @@ qt_add_resources(ViewLogApp "configuration"
         assets/treeWidget/stylesheet-branch-open.png
         assets/treeWidget/stylesheet-branch-more.png
         assets/treeWidget/stylesheet-branch-end.png
-        assets/treeWidget/stylesheet-branch-closed.
-        
+        assets/treeWidget/stylesheet-branch-closed.png
 )
 
 target_link_libraries(ViewLogApp PRIVATE
